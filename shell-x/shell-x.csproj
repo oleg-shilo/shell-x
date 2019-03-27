@@ -75,8 +75,9 @@
     <None Include="packages.config" />
     <None Include="sign_key.snk" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="SharpShell.dll" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)bin\$(TargetFileName)"
+copy "$(TargetDir)SharpShell.dll" "$(SolutionDir)bin\SharpShell.dll"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

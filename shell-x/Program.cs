@@ -39,7 +39,9 @@ class App
 
             dir = ConfigDir.PathJoin("txt");
             Console.WriteLine($"Configured context menu for '*.*' and '*.txt' files: '{ConfigDir}'");
-            Process.Start("explorer", $"\"{ConfigDir}\"");
+
+            if (!args.ContainsAny("-noui"))
+                Process.Start("explorer", $"\"{ConfigDir}\"");
         }
         else if (args.ContainsAny("-register", "-r"))
         {

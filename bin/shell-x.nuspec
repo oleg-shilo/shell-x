@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>shell-x</id>
+        <version>1.0.0.0</version>
+        <title>Shell-X</title>
+        <authors>Oleg Shilo</authors>
+        <owners>Oleg Shilo</owners>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>https://github.com/oleg-shilo/shell-x</projectUrl>
+        <packageSourceUrl>https://github.com/oleg-shilo/shell-x</packageSourceUrl>
+        <bugTrackerUrl>https://github.com/oleg-shilo/shell-x/issues</bugTrackerUrl>
+        <docsUrl>https://github.com/oleg-shilo/shell-x/wiki</docsUrl>
+        <iconUrl></iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>
+         Dynamic customizable windows explorer context menu solution.
+        </description>
+
+        <summary>Shell-X</summary>
+        <releaseNotes>
+# Release v1.0.0.0
+- Initial release
+        </releaseNotes>
+        <copyright>Oleg Shilo</copyright>
+        <tags>C# Windows Explorer contex menu shell</tags>
+    </metadata>
+    <files>
+        <file src="tools\chocolateyInstall.ps1" target="tools\chocolateyInstall.ps1" />
+        <file src="tools\chocolateyUninstall.ps1" target="tools\chocolateyUninstall.ps1" />
+    </files>
+</package>
