@@ -46,6 +46,9 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ServerRegistrationManager, Version=2.7.1.0, Culture=neutral, PublicKeyToken=68bd4561cc3495fc, processorArchitecture=MSIL">
       <HintPath>..\packages\ServerRegistrationManager.2.7.1\lib\net45\ServerRegistrationManager.exe</HintPath>
@@ -74,6 +77,9 @@
     <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="sign_key.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="loo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

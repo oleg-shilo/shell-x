@@ -11,7 +11,7 @@
         <packageSourceUrl>https://github.com/oleg-shilo/shell-x</packageSourceUrl>
         <bugTrackerUrl>https://github.com/oleg-shilo/shell-x/issues</bugTrackerUrl>
         <docsUrl>https://github.com/oleg-shilo/shell-x/wiki</docsUrl>
-        <iconUrl></iconUrl>
+        <iconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/wiki/images/css_logo_codeplex_256x256_2.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>
          Dynamic customizable windows explorer context menu solution.
