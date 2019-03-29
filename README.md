@@ -30,6 +30,36 @@ Below are the some of Shell-X features that extend Windows "Send to" approach:
 * Definitive menu items order due to the use of the sortable prefixes in the file names.
 * Individual context menu definitions for file types based on the file extension.
 
+## Installation
+
+_With Chocolatey_
+
+Install package _Shell-X_:
+
+```PS
+choco install shell-x
+```
+
+_Manually_
+
+- Download the release package and unzip its content in any location.
+- Execute the following two commands in the command prompt
+  ```
+  shell-x -r
+  shell-x -init
+  ``` 
+
+_Configuration_
+
+After the installation the sample context menu (as described in the next section) will be created. Do modify and extend it as you wish by creating properly name batch files in the configuration folder as described in the next section.
+
+You can open configuration folder any time by executing the _open_ command in command prompt:
+
+```
+shell-x -open
+```
+
+
 ## How it works
 
 Shell-X maintains a global directory, which file tree structure defines the complex context menu tree to be displayed at runtime on right click.
