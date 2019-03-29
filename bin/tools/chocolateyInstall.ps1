@@ -5,7 +5,7 @@ try {
     $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
     $app = Join-Path $installDir "shell-x\shell-x.exe"
     #Write-Host "$app"
-    $cheksum = '3571F3C148D207A4707FC9260AB5D4DD89C42A907340331CF327EC6FFB19F17A'
+    $cheksum = '16AE4B3E62EBE6AB46EF2FAB8E20F8EAF6B8653BC50A20D1A7EF648222B30B46'
     $checksumType = "sha256"
   
     # Download and unpack a zip file
