@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -51,6 +52,14 @@ static class DSLExtensions
     public static string GetFileName(this string path) => Path.GetFileName(path);
 
     public static string GetExtension(this string path) => Path.GetExtension(path);
+
+    public static void Save(this Icon icon, string file)
+    {
+        using (var fs = new FileStream(file, FileMode.Create))
+            icon.Save(fs);
+    }
+
+    public static string ChangeExtensionTo(this string path, string newExtension) => Path.ChangeExtension(path, newExtension);
 
     public static string ToFileMenuText(this string path) => path.GetFileName()
                                                                  .Split(new[] { '.' }, 2)

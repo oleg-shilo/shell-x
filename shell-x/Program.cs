@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SharpShell.Attributes;
 using SharpShell.SharpContextMenu;
+using ShellX;
 using static System.Environment;
 
 class App
@@ -32,10 +34,11 @@ class App
             File.WriteAllText(dir.PathJoin("03.Show Info.c.cmd"), $"dir \"%*\"{NewLine}pause");
             File.WriteAllText(dir.PathJoin("04.separator"), "");
             File.WriteAllText(dir.PathJoin("05.Shell-X configure.cmd"), $"explorer \"{ConfigDir}\"");
+            Resources.logo.Save(dir.PathJoin("05.Shell-X configure.ico"));
 
-            dir = ConfigDir.PathJoin("[any]", "01.=== Shell-X any file ===").EnsureDirectory();
-            File.WriteAllText(dir.PathJoin("05.Explore....cmd"), $"explorer /select,%*");
-            File.WriteAllText(dir.PathJoin("05.Shell-X configure.cmd"), $"explorer \"{ConfigDir}\"");
+            dir = ConfigDir.PathJoin("[any]").EnsureDirectory();
+            File.WriteAllText(dir.PathJoin("01.Shell-X configure.cmd"), $"explorer \"{ConfigDir}\"");
+            Resources.logo.Save(dir.PathJoin("01.Shell-X configure.ico"));
 
             dir = ConfigDir.PathJoin("txt");
             Console.WriteLine($"Configured context menu for '*.*' and '*.txt' files: '{ConfigDir}'");
@@ -135,6 +138,22 @@ public class DynamicContextMenuExtension : SharpContextMenu
         return menu;
     }
 
+    static Image LookupImageFor(string path)
+    {
+        return LookupImageFor(path, ".ico") ??
+               LookupImageFor(path, ".png") ??
+               LookupImageFor(path, ".gif");
+    }
+
+    static Image LookupImageFor(string path, string imgExtension)
+    {
+        var imgFile = path.IsDir() ?
+                      path + imgExtension :
+                      path.ChangeExtensionTo(imgExtension);
+
+        return File.Exists(imgFile) ? Image.FromFile(imgFile) : null;
+    }
+
     internal static ToolStripItem[] BuildMenuFrom(string configDir, string invokeArguments)
     {
         var menus = new List<ToolStripItem>();
@@ -159,7 +178,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 {
                     var parentMenu = new ToolStripMenuItem
                     {
-                        Text = item.ToDirMenuText()
+                        Text = item.ToDirMenuText(),
+                        Image = LookupImageFor(item)
                     };
 
                     current.AddItem(parentMenu);
@@ -177,7 +197,12 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     }
                     else if (item.EndsWithAny(".cmd", ".bat"))
                     {
-                        var menu = new ToolStripMenuItem { Text = item.ToFileMenuText() };
+                        var menu = new ToolStripMenuItem
+                        {
+                            Text = item.ToFileMenuText(),
+                            Image = LookupImageFor(item)
+                        };
+
                         menu.Click += (s, e) =>
                         {
                             bool showConsole = item.EndsWithAny(".c.cmd", ".c.bat");
