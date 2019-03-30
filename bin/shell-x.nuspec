@@ -14,7 +14,8 @@
         <iconUrl>https://raw.githubusercontent.com/oleg-shilo/shell-x/master/images/shell_x_logo.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>
-         Dynamic customizable windows explorer context menu solution.
+         Dynamic customizable file context menu solution for Windows.
+         Simplified customizable windows explorer context menu solution for Windows. Allows creating context menus of any complexity vithout the need to compiule COM shell Extensions. The solution is based on the same concept as Windows Explorer native "Send to" context menu.  
         </description>
 
         <summary>Shell-X</summary>
