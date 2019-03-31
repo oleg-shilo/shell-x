@@ -96,3 +96,9 @@ Since the menu items are composed according the configuration folder file struct
   05.Shell-X configure.cmd
   05.Shell-X configure.ico
   ```
+
+## Limitations
+
+* When user right-click a file and the plugin is loaded for the very first time there is a noticable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one off limititation and any consecutive right-clicks bring context menu instantly.
+
+  
