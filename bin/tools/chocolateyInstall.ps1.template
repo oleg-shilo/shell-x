@@ -15,5 +15,7 @@ Install-ChocolateyZipPackage "$packageName" "$url" "$installDir" -checksum $chec
 # Need to execute exe twice with special arguments in order configure the host system appropriately.
 # Register server and generate initial config
 
-Start-Process -FilePath "$app" -ArgumentList "-r"
-Start-Process -FilePath "$app" -ArgumentList "-i -nogui"
+
+Start-ChocolateyProcessAsAdmin -Statements "-r" -ExeToRun $app
+Start-ChocolateyProcessAsAdmin -Statements "-init -nogui" -ExeToRun $app
+

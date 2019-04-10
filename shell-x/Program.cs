@@ -85,9 +85,9 @@ class App
     static public string Name = Assembly.GetExecutingAssembly().GetTitle();
 
     static public string ConfigDir => SpecialFolder.ApplicationData
-                                          .GetPath()
-                                              .PathJoin(Name.ToLower())
-                                              .EnsureDirectory();
+                                                   .GetPath()
+                                                   .PathJoin(Name.ToLower())
+                                                   .EnsureDirectory();
 }
 
 [ComVisible(true)]
