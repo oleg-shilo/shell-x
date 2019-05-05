@@ -8,7 +8,7 @@ Allows creating context menus of any complexity without the need to compile COM 
 
 In Windows Explorer context menus are an extremely important part of the User Experience (UX). Just a single right-click on the file allows a convenient access to the file type specific operations.
 
-Unfortunately creation and customization context menus were always a pain point. The problem is the Windows implements explorer context menus as so called _Shell Extensions_. They are a heavy weight COM servers that is not trivial to implements. And what is even more important they are components that must be rebuild/recompiled every time user changes the menu structure or the associate menu action. And this in turn dramatically affects the user adoption of context menus as an operating system feature.  
+Unfortunately creation and customization context menus were always a pain point. The problem is that Windows implements explorer context menus as so called _Shell Extensions_. They are a heavy weight COM servers that is not trivial to implement. And what is even more important they are components that must be rebuild/recompiled every time user wants to change the menu structure or the associated menu action. And this in turn dramatically affects the user adoption of context menus as an operating system feature.  
 
 Interestingly enough Windows has introduces an alternative light way for managing very specific context menu - "Send to".
 
@@ -20,7 +20,7 @@ The customisation of the "Send to" is dead simple. User simply goes to the speci
 
 This means that creation and customization of the "Send to" context menu is a simple file creation/editing activity that does not even require user to be an admin (elevated).
 
-Shell-X applies the same simplified approach approach but extends it by allowing creation of any context menu for any file type.
+Shell-X applies the same simplified approach but extends it by allowing creation of any context menu for any file type.
 
 Below are the some of Shell-X features that extend Windows "Send to" approach:
 
@@ -28,7 +28,7 @@ Below are the some of Shell-X features that extend Windows "Send to" approach:
 * Support for console and windows menu actions.
 * Support for custom icons in the menu items.
 * The action definition is no longer a shortcut but a batch file so a menu action can have multiple steps.
-* Definitive menu items order due to the use of the sortable prefixes in the file names.
+* Definitive menu items order thanks to the use of the sortable prefixes in the file names.
 * Individual context menu definitions for file types based on the file extension.
 
 ## Installation
