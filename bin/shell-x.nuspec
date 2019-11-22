@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>shell-x</id>
-        <version>1.0.0.0</version>
+        <version>1.0.1.0</version>
         <title>Shell-X</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -15,16 +15,16 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>
          Dynamic customizable file context menu solution for Windows.
-         Simplified customizable windows explorer context menu solution for Windows. Allows creating context menus of any complexity vithout the need to compiule COM shell Extensions. The solution is based on the same concept as Windows Explorer native "Send to" context menu.  
+         Simplified customizable windows explorer context menu solution for Windows. Allows creating context menus of any complexity without the need to compile COM shell Extensions. The solution is based on the same concept as Windows Explorer native "Send to" context menu.
         </description>
 
         <summary>Shell-X</summary>
         <releaseNotes>
-# Release v1.0.0.0
-- Initial release
+# Release v1.0.1.0
+- Issue#2: Unnecessary double quotation marks
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
-        <tags>C# Windows Explorer contex menu shell</tags>
+        <tags>C# Windows Explorer context menu shell</tags>
     </metadata>
     <files>
         <file src="tools\chocolateyInstall.ps1" target="tools\chocolateyInstall.ps1" />
