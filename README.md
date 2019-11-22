@@ -1,14 +1,14 @@
 # Shell-X
 <img align="right" src="https://raw.githubusercontent.com/oleg-shilo/shell-x/master/images/shell_x_logo.png" height="128" width="128" alt="" style="float:right">
 
-_**Dynamic customizable file context menu solution for Windows. 
+_**Dynamic customizable file context menu solution for Windows.
 Allows creating context menus of any complexity without the need to compile COM shell extensions. The solution is based on the same concept as Windows Explorer native "Send to" context menu.**_
 
 ## Overview
 
 In Windows Explorer context menus are an extremely important part of the User Experience (UX). Just a single right-click on the file allows a convenient access to the file type specific operations.
 
-Unfortunately creation and customization context menus were always a pain point. The problem is the Windows implements explorer context menus as so called _Shell Extensions_. They are a heavy weight COM servers that is not trivial to implements. And what is even more important they are components that must be rebuild/recompiled every time user changes the menu structure or the associate menu action. And this in turn dramatically affects the user adoption of context menus as an operating system feature.  
+Unfortunately creation and customization context menus were always a pain point. The problem is the Windows implements explorer context menus as so called _Shell Extensions_. They are a heavy weight COM servers that is not trivial to implements. And what is even more important they are components that must be rebuild/recompiled every time user changes the menu structure or the associate menu action. And this in turn dramatically affects the user adoption of context menus as an operating system feature.
 
 Interestingly enough Windows has introduces an alternative light way for managing very specific context menu - "Send to".
 
@@ -48,7 +48,7 @@ _Manually_
   ```
   shell-x -r
   shell-x -init
-  ``` 
+  ```
 
 _Configuration_
 
@@ -68,18 +68,18 @@ Shell-X maintains a global directory, which file tree structure defines the comp
 The root folders are named according the file extension that the context menu is for. Thus the folder `txt` contains context menu definition for all text files, the `dll` folder is for all DLLs. And there is a special folder name `[any]` that defines the context menu for any file type.
 
 Below is the example of the configuration for two separate context menus for text files and for any file.
- 
+
 ![image](images/shell_x_files.png)
 
 And this is how the menus look at runtime.
 
 ![image](images/shell_x_menu.png)
 
-In the example above the context menu for txt files has a complex structure containing sub-menus for opening selected file with Notepad and other file handling operations. 
+In the example above the context menu for txt files has a complex structure containing sub-menus for opening selected file with Notepad and other file handling operations.
 
 The content of _00.Notepad.cmd_ file is an ordinary batch file content:
 ```
-notepad.exe "%*"
+notepad.exe %*
 ```
 
 Since the menu items are composed according the configuration folder file structure naming the files it is vital the proper naming convention is followed:
@@ -91,7 +91,7 @@ Since the menu items are composed according the configuration folder file struct
 
 * By default the batch file is executed with the console window hidden. If you prefer console being visible include `.c` suffix before the batch file extension.
 
-* If you want the menu item to have the icon then place the icon file in the same folder where the corresponding batch file is and give it the same file name as the batch file but with the _".ico"_ extension:  
+* If you want the menu item to have the icon then place the icon file in the same folder where the corresponding batch file is and give it the same file name as the batch file but with the _".ico"_ extension:
   ```
   05.Shell-X configure.cmd
   05.Shell-X configure.ico
@@ -101,4 +101,4 @@ Since the menu items are composed according the configuration folder file struct
 
 * When user right-click a file and the plugin is loaded for the very first time there is a noticable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one off limititation and any consecutive right-clicks bring context menu instantly.
 
-  
+

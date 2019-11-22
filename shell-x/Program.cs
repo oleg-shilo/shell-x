@@ -28,10 +28,10 @@ class App
             File.WriteAllText(dir.PathJoin("..", "00.separator"), "");
             File.WriteAllText(dir.PathJoin("..", "02.separator"), "");
 
-            File.WriteAllText(dir.PathJoin("00.Notepad.cmd"), "notepad.exe \"%*\"");
-            File.WriteAllText(dir.PathJoin("01.Notepad++.cmd"), "notepad++.exe \"%*\"");
+            File.WriteAllText(dir.PathJoin("00.Notepad.cmd"), "notepad.exe %*");
+            File.WriteAllText(dir.PathJoin("01.Notepad++.cmd"), "notepad++.exe %*");
             File.WriteAllText(dir.PathJoin("02.separator"), "");
-            File.WriteAllText(dir.PathJoin("03.Show Info.c.cmd"), $"dir \"%*\"{NewLine}pause");
+            File.WriteAllText(dir.PathJoin("03.Show Info.c.cmd"), $"dir %*{NewLine}pause");
             File.WriteAllText(dir.PathJoin("04.separator"), "");
             File.WriteAllText(dir.PathJoin("05.Shell-X configure.cmd"), $"explorer \"{ConfigDir}\"");
             Resources.logo.Save(dir.PathJoin("05.Shell-X configure.ico"));
