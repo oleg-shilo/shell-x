@@ -11,7 +11,7 @@
         <packageSourceUrl>https://github.com/oleg-shilo/shell-x</packageSourceUrl>
         <bugTrackerUrl>https://github.com/oleg-shilo/shell-x/issues</bugTrackerUrl>
         <docsUrl>https://github.com/oleg-shilo/shell-x/wiki</docsUrl>
-        <iconUrl>https://raw.githubusercontent.com/oleg-shilo/shell-x/master/images/shell_x_logo.png</iconUrl>
+        <iconUrl>https://rawcdn.githack.com/oleg-shilo/shell-x/4743af71f222887d1e13787204a3a2527cd121c5/images/shell_x_logo.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>
          Dynamic customizable file context menu solution for Windows.
@@ -20,8 +20,8 @@
 
         <summary>Shell-X</summary>
         <releaseNotes>
-# Release v1.0.1.0
-- Issue#2: Unnecessary double quotation marks
+# Release v1.1.0.0
+- Issue #3: Add support for folder
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>C# Windows Explorer context menu shell</tags>

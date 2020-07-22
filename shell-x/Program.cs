@@ -93,14 +93,22 @@ class App
 [ComVisible(true)]
 // [COMServerAssociation(AssociationType.ClassOfExtension, ".dll", ".txt", ".cs")]
 [COMServerAssociation(AssociationType.AllFiles)]
+[COMServerAssociation(AssociationType.Folder)]
 public class DynamicContextMenuExtension : SharpContextMenu
 {
     protected override bool CanShowMenu()
     {
         if (this.SelectedItemPaths.Count() == 1)
         {
-            var ext = Path.GetExtension(this.SelectedItemPaths.First()).Replace(".", "");
-            return ConfiguredFileExtensions.Any(x => x.Matching(ext)) ||
+            var path = this.SelectedItemPaths.First();
+
+            // Debug.Assert(false, "file/folder\n" + path);
+
+            var ext = Path.GetExtension(path).Replace(".", "");
+
+            return
+                Directory.Exists(this.SelectedItemPaths.First()) ||
+                ConfiguredFileExtensions.Any(x => x.Matching(ext)) ||
                 ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
         }
         else
@@ -257,7 +265,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     .Select(x => x.GetFileName()) // gets dir name only without the rest of the path
                     .ToArray();
 
-    string GetConfigDirFor(string file) => App.ConfigDir.PathJoin(file.GetExtension().Replace(".", ""));
+    string GetConfigDirFor(string file) => (Directory.Exists(file)) ? App.ConfigDir.PathJoin("[folder]") : App.ConfigDir.PathJoin(file.GetExtension().Replace(".", ""));
 
     string GetConfigDirForAny() => App.ConfigDir.PathJoin("[any]");
 }
