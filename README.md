@@ -65,7 +65,9 @@ shell-x -open
 
 Shell-X maintains a global directory, which file tree structure defines the complex context menu tree to be displayed at runtime on right click.
 
-The root folders are named according the file extension that the context menu is for. Thus the folder `txt` contains context menu definition for all text files, the `dll` folder is for all DLLs. And there is a special folder name `[any]` that defines the context menu for any file type.
+The root folders are named according the file extension that the context menu is for. Thus the folder `txt` contains context menu definition for all text files, the `dll` folder is for all DLLs. And there are two special folder names:
+- `[any]` that defines the context menu for any file type.
+- `[folder]` that defines the context menu for a folder.
 
 Below is the example of the configuration for two separate context menus for text files and for any file.
 
