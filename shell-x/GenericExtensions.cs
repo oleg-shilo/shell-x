@@ -67,9 +67,9 @@ static class DSLExtensions
                                                                  .Replace(".c.cmd", "")
                                                                  .Replace(".c.bat", "")
                                                                  .Replace(".c.ps1", "")
-                                                                 .Replace(".ps1", "")
                                                                  .Replace(".cmd", "")
-                                                                 .Replace(".bat", "");
+                                                                 .Replace(".bat", "")
+                                                                 .Replace(".ps1", "");
 
     public static string ToDirMenuText(this string path) => path.GetFileName().Split(new[] { '.' }, 2).Last();
 

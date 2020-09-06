@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -37,7 +39,7 @@ class App
             File.WriteAllText(dir.PathJoin("01.Notepad++.cmd"), "notepad++.exe %*");
             File.WriteAllText(dir.PathJoin("02.separator"), "");
             File.WriteAllText(dir.PathJoin("03.Show Info.c.cmd"), $"dir %*{NewLine}pause");
-            File.WriteAllText(dir.PathJoin("03.Show Path.c.ps1"), $"Write-Host \"File: $($args[0])\" \n"+
+            File.WriteAllText(dir.PathJoin("03.Show Path.c.ps1"), $"Write-Host \"File: $($args[0])\" \n" +
                                                                             $"Write-Host -NoNewLine 'Press any key to continue...'; " +
                                                                             $"$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');");
             File.WriteAllText(dir.PathJoin("04.separator"), "");
@@ -167,8 +169,12 @@ public class DynamicContextMenuExtension : SharpContextMenu
                       path + imgExtension :
                       path.ChangeExtensionTo(imgExtension);
 
-        return File.Exists(imgFile) ? Image.FromFile(imgFile) : null;
+        var img = File.Exists(imgFile) ? imgFile.ReadImage() : null;
+        return img;
     }
+
+    static List<Image> LoadedImages = new List<Image>();
+
 
     internal static ToolStripItem[] BuildMenuFrom(string configDir, string invokeArguments)
     {
@@ -198,6 +204,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         Image = LookupImageFor(item)
                     };
 
+
                     current.AddItem(parentMenu);
                     dirsToProcess.Enqueue(new BuildItem
                     {
@@ -219,9 +226,15 @@ public class DynamicContextMenuExtension : SharpContextMenu
                             Image = LookupImageFor(item)
                         };
 
+                        try
+                        {
+                            menu.Image = menu.Image?.Resize(menu.ContentRectangle.Height, menu.ContentRectangle.Height);
+                        }
+                        catch { }
+
                         menu.Click += (s, e) =>
                         {
-                            Execute(  item, invokeArguments);
+                            Execute(item, invokeArguments);
                         };
                         current.AddItem(menu);
                     }
@@ -235,12 +248,14 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
     public static void Cleanup()
     {
+        LoadedImages.ForEach(i=>i.Dispose());
+
         var except = Process.GetCurrentProcess().Id.ToString();
         Directory.GetFiles(App.ConfigDir.PathJoin(".run").EnsureDirectory(), "*.*.ps1")
-                 .Select(x=> new { path = x, pid = x.GetFileName().Split('.').First()})
-                 .Where(x=>x.pid != except)
+                 .Select(x => new { path = x, pid = x.GetFileName().Split('.').First() })
+                 .Where(x => x.pid != except)
                  .ToList()
-                 .ForEach(x=>
+                 .ForEach(x =>
                  {
                      try
                      {
@@ -249,7 +264,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                      catch { }
                  });
     }
-    public static string CloneScript (string script)
+    public static string CloneScript(string script)
     {
         var hash = (Path.GetFullPath(script) + File.GetLastWriteTimeUtc(script)).GetHashCode();
 
@@ -326,4 +341,44 @@ public class DynamicContextMenuExtension : SharpContextMenu
     string GetConfigDirFor(string file) => (Directory.Exists(file)) ? App.ConfigDir.PathJoin("[folder]") : App.ConfigDir.PathJoin(file.GetExtension().Replace(".", ""));
 
     string GetConfigDirForAny() => App.ConfigDir.PathJoin("[any]");
+}
+
+static class Utils
+{
+
+    public static Image ReadImage(this string file)
+    {
+        using (var ms = new MemoryStream(File.ReadAllBytes(file)))
+        {
+            if(string.Compare(Path.GetExtension(file), ".ico", StringComparison.OrdinalIgnoreCase) == 0)
+                return new Icon(ms).ToBitmap();
+            else
+                return Image.FromStream(ms);
+        }
+    }
+
+    public static Bitmap Resize(this Image image, int width, int height)
+    {
+        var destRect = new Rectangle(0, 0, width, height);
+        var destImage = new Bitmap(width, height);
+
+        destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+        using (var graphics = Graphics.FromImage(destImage))
+        {
+            graphics.CompositingMode = CompositingMode.SourceCopy;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            using (var wrapMode = new ImageAttributes())
+            {
+                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+            }
+        }
+
+        return destImage;
+    }
 }
