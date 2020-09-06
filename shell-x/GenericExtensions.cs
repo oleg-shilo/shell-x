@@ -66,6 +66,8 @@ static class DSLExtensions
                                                                  .Last()
                                                                  .Replace(".c.cmd", "")
                                                                  .Replace(".c.bat", "")
+                                                                 .Replace(".c.ps1", "")
+                                                                 .Replace(".ps1", "")
                                                                  .Replace(".cmd", "")
                                                                  .Replace(".bat", "");
 

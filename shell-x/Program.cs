@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using SharpShell.Attributes;
 using SharpShell.SharpContextMenu;
@@ -21,6 +22,10 @@ class App
             Console.WriteLine($"Opening config directory: '{ConfigDir}'");
             Process.Start("explorer", $"\"{ConfigDir}\"");
         }
+        else if (args.Contains("-test"))
+        {
+            DynamicContextMenuExtension.Execute(@"C:\Users\oleg.shilo\AppData\Roaming\shell-x\txt\01.=== Shell-X for •.txt file ===\03.Show Path.c.ps1", "");
+        }
         else if (args.ContainsAny("-init"))
         {
             var dir = ConfigDir.PathJoin("txt", "01.=== Shell-X for •.txt file ===").EnsureDirectory();
@@ -32,6 +37,9 @@ class App
             File.WriteAllText(dir.PathJoin("01.Notepad++.cmd"), "notepad++.exe %*");
             File.WriteAllText(dir.PathJoin("02.separator"), "");
             File.WriteAllText(dir.PathJoin("03.Show Info.c.cmd"), $"dir %*{NewLine}pause");
+            File.WriteAllText(dir.PathJoin("03.Show Path.c.ps1"), $"Write-Host \"File: $($args[0])\" \n"+
+                                                                            $"Write-Host -NoNewLine 'Press any key to continue...'; " +
+                                                                            $"$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');");
             File.WriteAllText(dir.PathJoin("04.separator"), "");
             File.WriteAllText(dir.PathJoin("05.Shell-X configure.cmd"), $"explorer \"{ConfigDir}\"");
             Resources.logo.Save(dir.PathJoin("05.Shell-X configure.ico"));
@@ -60,7 +68,7 @@ class App
             string cpuType = Environment.Is64BitProcess ? "x64" : "x32";
 
             Console.WriteLine($"Dynamic context menu manager. Version {Assembly.GetExecutingAssembly().GetName().Version}");
-            Console.WriteLine($"Copyright (C) 2019 Oleg Shilo (github.com/oleg-shilo/shell-x)");
+            Console.WriteLine($"Copyright (C) 2019-2020 Oleg Shilo (github.com/oleg-shilo/shell-x)");
             Console.WriteLine();
             Console.WriteLine("==================================================================");
             Console.WriteLine($"  Config directory: {ConfigDir}");
@@ -203,7 +211,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     {
                         current.AddItem(new ToolStripSeparator());
                     }
-                    else if (item.EndsWithAny(".cmd", ".bat"))
+                    else if (item.EndsWithAny(".cmd", ".bat", ".ps1"))
                     {
                         var menu = new ToolStripMenuItem
                         {
@@ -213,37 +221,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
                         menu.Click += (s, e) =>
                         {
-                            bool showConsole = item.EndsWithAny(".c.cmd", ".c.bat");
-                            try
-                            {
-                                var p = new Process();
-                                if (showConsole)
-                                {
-                                    p.StartInfo.FileName = item;
-                                    p.StartInfo.Arguments = invokeArguments;
-
-                                    // code below works very well and produces less noise
-                                    // though it unconditionally waits. Thus an orthodox execution as
-                                    // above is adequate particularly because it lets user to pose (with 'pause')
-                                    // in the batch file or path through to the exit.
-
-                                    // p.StartInfo.FileName = "cmd.exe";
-                                    // p.StartInfo.Arguments = $"/K \"\"{item}\" {invokeArguments}";
-                                }
-                                else
-                                {
-                                    p.StartInfo.FileName = item;
-                                    p.StartInfo.Arguments = invokeArguments;
-                                    p.StartInfo.UseShellExecute = false;
-                                    p.StartInfo.RedirectStandardOutput = true;
-                                    p.StartInfo.CreateNoWindow = true;
-                                }
-                                p.Start();
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error: {ex}", App.Name);
-                            };
+                            Execute(  item, invokeArguments);
                         };
                         current.AddItem(menu);
                     }
@@ -252,6 +230,86 @@ public class DynamicContextMenuExtension : SharpContextMenu
         }
 
         return menus.ToArray();
+    }
+
+
+    public static void Cleanup()
+    {
+        var except = Process.GetCurrentProcess().Id.ToString();
+        Directory.GetFiles(App.ConfigDir.PathJoin(".run").EnsureDirectory(), "*.*.ps1")
+                 .Select(x=> new { path = x, pid = x.GetFileName().Split('.').First()})
+                 .Where(x=>x.pid != except)
+                 .ToList()
+                 .ForEach(x=>
+                 {
+                     try
+                     {
+                         File.Delete(x.path);
+                     }
+                     catch { }
+                 });
+    }
+    public static string CloneScript (string script)
+    {
+        var hash = (Path.GetFullPath(script) + File.GetLastWriteTimeUtc(script)).GetHashCode();
+
+        var clone = App.ConfigDir.PathJoin(".run")
+                                 .EnsureDirectory()
+                                 .PathJoin($"{Process.GetCurrentProcess().Id}.{hash}.ps1");
+
+        if (!File.Exists(clone))
+        {
+            var content = File.ReadAllBytes(script);
+            File.WriteAllBytes(clone, content);
+        }
+
+        return clone;
+    }
+
+    public static void Execute(string item, string invokeArguments)
+    {
+        lock (typeof(App))
+        {
+            bool showConsole = item.EndsWithAny(".c.cmd", ".c.bat", ".c.ps1");
+            try
+            {
+                var p = new Process();
+                p.StartInfo.FileName = item;
+                p.StartInfo.Arguments = invokeArguments;
+
+                // Debug.Assert(false);
+
+                if (item.EndsWithAny(".ps1"))
+                {
+                    p.StartInfo.FileName = "powershell.exe";
+                    p.StartInfo.Arguments = $"\"{CloneScript(item)}\" {invokeArguments}";
+                }
+
+                if (showConsole)
+                {
+                    // code below works very well and produces less noise
+                    // though it unconditionally waits. Thus an orthodox execution as
+                    // above is adequate particularly because it lets user to pose (with 'pause')
+                    // in the batch file or path through to the exit.
+
+                    // p.StartInfo.FileName = "cmd.exe";
+                    // p.StartInfo.Arguments = $"/K \"\"{item}\" {invokeArguments}";
+                }
+                else
+                {
+                    p.StartInfo.UseShellExecute = false;
+                    p.StartInfo.RedirectStandardOutput = true;
+                    p.StartInfo.CreateNoWindow = true;
+                }
+                p.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex}", App.Name);
+            };
+
+            Task.Run(Cleanup);
+        }
     }
 
     class BuildItem
