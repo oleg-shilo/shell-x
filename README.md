@@ -26,6 +26,7 @@ Below are the some of Shell-X features that extend Windows "Send to" approach:
 
 * Support for complex nested context menus.
 * Support for console and windows menu actions.
+* Support for both batch files and PowerShell scripts.
 * Support for custom icons in the menu items.
 * The action definition is no longer a shortcut but a batch file so a menu action can have multiple steps.
 * Definitive menu items order thanks to the use of the sortable prefixes in the file names.
@@ -88,7 +89,7 @@ Since the menu items are composed according the configuration folder file struct
 
 * File name
   ```
-  <two_digits_order_prefix>.<menu_item_name>[.c].cmd
+  <two_digits_order_prefix>.<menu_item_name>[.c].<cmd|bat|ps1>
   ```
 
 * By default the batch file is executed with the console window hidden. If you prefer console being visible include `.c` suffix before the batch file extension.
