@@ -102,6 +102,6 @@ Since the menu items are composed according the configuration folder file struct
 
 ## Limitations
 
-* When user right-click a file and the plugin is loaded for the very first time there is a noticable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one off limititation and any consecutive right-clicks bring context menu instantly.
+* When user right-click a file and the plugin is loaded for the very first time there is a noticable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one off limititation and any subsequent right-clicks bring context menu instantly.
 
 
