@@ -103,13 +103,27 @@ class App
 [ComVisible(true)]
 // [COMServerAssociation(AssociationType.ClassOfExtension, ".dll", ".txt", ".cs")]
 [COMServerAssociation(AssociationType.AllFiles)]
+[COMServerAssociation(AssociationType.DirectoryBackground)]
 [COMServerAssociation(AssociationType.Folder)]
 public class DynamicContextMenuExtension : SharpContextMenu
 {
+    static int lastPopupTime = 0;
+
     protected override bool CanShowMenu()
     {
+        if ((Environment.TickCount - lastPopupTime) < 1000)
+            return false; // the query is executed twice if the clicked item is a folder on the folder tree. so exit to avoid duplication
+
+        lastPopupTime = Environment.TickCount;
+
+        // Debug.WriteLine("--------------------");
+        // Debug.WriteLine("this.SelectedItemPaths.Count: " + this.SelectedItemPaths.Count());
+        // Debug.WriteLine("this.FolderPath: " + this.FolderPath);
+        // Debug.WriteLine("--------------------");
+
         if (this.SelectedItemPaths.Count() == 1)
         {
+            // Debug.Assert(false);
             var path = this.SelectedItemPaths.First();
 
             // Debug.Assert(false, "file/folder\n" + path);
@@ -129,7 +143,12 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 if (this.SelectedItemPaths.All(x => x.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     return true;
                 else
-                    return ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
+                {
+                    if (this.SelectedItemPaths.Any())
+                        return ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
+                    else
+                        return ConfiguredFileExtensions.Any(x => x.Matching("[FOLDER]"));
+                }
             }
         }
         return false;
@@ -142,12 +161,17 @@ public class DynamicContextMenuExtension : SharpContextMenu
         // - all extensions are the same
         // - extension is configured for having context menu
 
-        var configDir = GetConfigDirFor(this.SelectedItemPaths.First());
-        var items = BuildMenuFrom(configDir, this.SelectedItemPaths.ToArgumentsString());
+        var selectedItemPaths = new List<string>(this.SelectedItemPaths);
+
+        if (!selectedItemPaths.Any() && this.FolderPath.Any())
+            selectedItemPaths.Add(this.FolderPath);
+
+        var configDir = GetConfigDirFor(selectedItemPaths.First());
+        var items = BuildMenuFrom(configDir, selectedItemPaths.ToArgumentsString());
 
         if (ConfiguredFileExtensions.Any(x => x.Matching("[any]")))
         {
-            var extraItems = BuildMenuFrom(GetConfigDirForAny(), this.SelectedItemPaths.ToArgumentsString());
+            var extraItems = BuildMenuFrom(GetConfigDirForAny(), selectedItemPaths.ToArgumentsString());
             items = items.Concat(extraItems).ToArray();
         }
 
@@ -174,7 +198,6 @@ public class DynamicContextMenuExtension : SharpContextMenu
     }
 
     static List<Image> LoadedImages = new List<Image>();
-
 
     internal static ToolStripItem[] BuildMenuFrom(string configDir, string invokeArguments)
     {
@@ -203,7 +226,6 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         Text = item.ToDirMenuText(),
                         Image = LookupImageFor(item)
                     };
-
 
                     current.AddItem(parentMenu);
                     dirsToProcess.Enqueue(new BuildItem
@@ -245,10 +267,9 @@ public class DynamicContextMenuExtension : SharpContextMenu
         return menus.ToArray();
     }
 
-
     public static void Cleanup()
     {
-        LoadedImages.ForEach(i=>i.Dispose());
+        LoadedImages.ForEach(i => i.Dispose());
 
         var except = Process.GetCurrentProcess().Id.ToString();
         Directory.GetFiles(App.ConfigDir.PathJoin(".run").EnsureDirectory(), "*.*.ps1")
@@ -264,6 +285,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                      catch { }
                  });
     }
+
     public static string CloneScript(string script)
     {
         var hash = (Path.GetFullPath(script) + File.GetLastWriteTimeUtc(script)).GetHashCode();
@@ -345,12 +367,11 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
 static class Utils
 {
-
     public static Image ReadImage(this string file)
     {
         using (var ms = new MemoryStream(File.ReadAllBytes(file)))
         {
-            if(string.Compare(Path.GetExtension(file), ".ico", StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.Compare(Path.GetExtension(file), ".ico", StringComparison.OrdinalIgnoreCase) == 0)
                 return new Icon(ms).ToBitmap();
             else
                 return Image.FromStream(ms);
