@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SharpShell.Attributes;
@@ -133,6 +134,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
             return
                 Directory.Exists(this.SelectedItemPaths.First()) ||
                 ConfiguredFileExtensions.Any(x => x.Matching(ext)) ||
+                ConfiguredFileExtensions.Any(x => Path.GetFileName(path).MatchingAsExpression(x)) ||
                 ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
         }
         else
@@ -360,7 +362,19 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     .Select(x => x.GetFileName()) // gets dir name only without the rest of the path
                     .ToArray();
 
-    string GetConfigDirFor(string file) => (Directory.Exists(file)) ? App.ConfigDir.PathJoin("[folder]") : App.ConfigDir.PathJoin(file.GetExtension().Replace(".", ""));
+    string GetConfigDirFor(string file)
+    {
+        var dir = (Directory.Exists(file)) ? App.ConfigDir.PathJoin("[folder]") : App.ConfigDir.PathJoin(file.GetExtension().Replace(".", ""));
+        if (Directory.Exists(dir))
+            return dir;
+
+        var match = Directory
+                   .GetDirectories(App.ConfigDir)
+                   .Where(x => Path.GetFileName(file).MatchingAsExpression(Path.GetFileName(x)))
+                   .FirstOrDefault();
+
+        return match;
+    }
 
     string GetConfigDirForAny() => App.ConfigDir.PathJoin("[any]");
 }

@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 static class DSLExtensions
 {
@@ -32,6 +34,21 @@ static class DSLExtensions
 
     public static bool Matching(this string text, string pattern, bool ignoreCase = true)
         => string.Compare(text, pattern, ignoreCase) == 0;
+
+    public static bool MatchingAsExpression(this string text, string rawPattern, bool ignoreCase = true)
+    {
+        string safeQuestionMark = "？"; // The unicode characters that look like ? and * but still allowed in dir and file names
+        string safeAsterisk = "⁎";
+
+        if (rawPattern.IndexOfAny((safeQuestionMark + safeAsterisk).ToArray()) != -1)
+        {
+            var pattern = rawPattern.Replace(safeQuestionMark, "?").Replace(safeAsterisk, "*");
+            var wildcard = new Regex(pattern.ConvertSimpleExpToRegExp(), ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
+
+            return wildcard.IsMatch(text);
+        }
+        return false;
+    }
 
     internal static bool EndsWithAny(this string text, params string[] patterns)
         => patterns.Any(x => text.EndsWith(x, StringComparison.OrdinalIgnoreCase));
@@ -74,4 +91,52 @@ static class DSLExtensions
     public static string ToDirMenuText(this string path) => path.GetFileName().Split(new[] { '.' }, 2).Last();
 
     public static string GetFileNameWithoutExtension(this string path) => Path.GetFileNameWithoutExtension(path);
+
+    //Credit to MDbg team: https://github.com/SymbolSource/Microsoft.Samples.Debugging/blob/master/src/debugger/mdbg/mdbgCommands.cs
+    public static string ConvertSimpleExpToRegExp(this string simpleExp)
+    {
+        //
+        // string pattern = ConvertSimpleExpToRegExp();
+        // var wildcard = new Regex(pattern, RegexOptions.IgnoreCase);
+        // if (wildcard.IsMatch(dir))
+        // //
+
+        var sb = new StringBuilder();
+        sb.Append("^");
+        foreach (char c in simpleExp)
+        {
+            switch (c)
+            {
+                case '\\':
+                case '{':
+                case '|':
+                case '+':
+                case '[':
+                case '(':
+                case ')':
+                case '^':
+                case '$':
+                case '.':
+                case '#':
+                case ' ':
+                    sb.Append('\\').Append(c);
+                    break;
+
+                case '*':
+                    sb.Append(".*");
+                    break;
+
+                case '?':
+                    sb.Append(".");
+                    break;
+
+                default:
+                    sb.Append(c);
+                    break;
+            }
+        }
+
+        sb.Append("$");
+        return sb.ToString();
+    }
 }
