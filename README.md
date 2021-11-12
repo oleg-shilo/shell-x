@@ -102,6 +102,19 @@ Since the menu items are composed according the configuration folder file struct
   05.Shell-X configure.cmd
   05.Shell-X configure.ico
   ```
+  
+Note, you can use wild card as the foder name that encodes the pattern for the file name that is clicked.
+However, since the wild card characters are prohibited by the file system you will need to use special characters that looke like the special wild card characters but are in fact special Unicode characters that are safe to use as folder names:
+
+```C#
+// The unicode characters that look like ? and * but still allowed in dir and file names
+ string safeQuestionMark = "？"; 
+ string safeAsterisk = "⁎";
+``` 
+Simply copy the characters from this description, compose the desired pattern in the text editor and then paste the pattern in the file explorer as a folder name.
+
+Thus your desired pattern for files cmn.ar.00, cmn.ar.01,. . .
+will look like this: ⁎.ar.⁎.  
 
 ## Limitations
 
