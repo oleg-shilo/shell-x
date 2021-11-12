@@ -103,7 +103,7 @@ Since the menu items are composed according the configuration folder file struct
   05.Shell-X configure.ico
   ```
   
-Note, you can use wild card as the foder name that encodes the pattern for the file name that is clicked.
+Note, you can use wild card expression as the folder name that encodes the pattern for the file name (of the file that is right clicked).
 However, since the wild card characters are prohibited by the file system you will need to use special characters that looke like the special wild card characters but are in fact special Unicode characters that are safe to use as folder names:
 
 ```C#
