@@ -1,5 +1,8 @@
 # Shell-X
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
 <img align="right" src="https://raw.githubusercontent.com/oleg-shilo/shell-x/master/images/shell_x_logo.png" height="128" width="128" alt="" style="float:right">
+
 
 _**Dynamic customizable file context menu solution for Windows.
 Allows creating context menus of any complexity without the need to compile COM shell extensions. The solution is based on the same concept as Windows Explorer native "Send to" context menu.**_
@@ -26,6 +29,7 @@ Below are the some of Shell-X features that extend Windows "Send to" approach:
 
 * Support for complex nested context menus.
 * Support for console and windows menu actions.
+* Support for both batch files and PowerShell scripts as an action associated with a menu item.
 * Support for custom icons in the menu items.
 * The action definition is no longer a shortcut but a batch file so a menu action can have multiple steps.
 * Definitive menu items order thanks to the use of the sortable prefixes in the file names.
@@ -88,7 +92,7 @@ Since the menu items are composed according the configuration folder file struct
 
 * File name
   ```
-  <two_digits_order_prefix>.<menu_item_name>[.c].cmd
+  <two_digits_order_prefix>.<menu_item_name>[.c].<cmd|bat|ps1>
   ```
 
 * By default the batch file is executed with the console window hidden. If you prefer console being visible include `.c` suffix before the batch file extension.
@@ -101,6 +105,6 @@ Since the menu items are composed according the configuration folder file struct
 
 ## Limitations
 
-* When user right-click a file and the plugin is loaded for the very first time there is a noticable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one off limititation and any consecutive right-clicks bring context menu instantly.
+* When user right-click a file and the plugin is loaded for the very first time there is a noticable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one off limititation and any subsequent right-clicks bring context menu instantly.
 
 
