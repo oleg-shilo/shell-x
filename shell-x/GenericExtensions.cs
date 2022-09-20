@@ -31,6 +31,10 @@ static class DSLExtensions
         catch { }
         return registered;
     }
+    public static string[][] ParseMultipleExt(this string[] items)
+    {
+        return items.Select((x) => x.Contains(",") && x.StartsWith("[") && x.EndsWith("]") ? x.Substring(1, x.Length - 2).Split(',') : null).Where(x => x != null).ToArray();
+    }
 
     public static bool Matching(this string text, string pattern, bool ignoreCase = true)
         => string.Compare(text, pattern, ignoreCase) == 0;
