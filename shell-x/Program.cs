@@ -110,18 +110,21 @@ public class DynamicContextMenuExtension : SharpContextMenu
 {
     static int lastPopupTime = 0;
 
+
     protected override bool CanShowMenu()
     {
         if ((Environment.TickCount - lastPopupTime) < 1000)
             return false; // the query is executed twice if the clicked item is a folder on the folder tree. so exit to avoid duplication
 
         lastPopupTime = Environment.TickCount;
-
-        // Debug.WriteLine("--------------------");
-        // Debug.WriteLine("this.SelectedItemPaths.Count: " + this.SelectedItemPaths.Count());
-        // Debug.WriteLine("this.FolderPath: " + this.FolderPath);
-        // Debug.WriteLine("--------------------");
-
+#if DEBUG
+        Debug.WriteLine("--------------------");
+        Debug.WriteLine("this.SelectedItemPaths.Count: " + this.SelectedItemPaths.Count());
+        Debug.WriteLine("this.FolderPath: " + this.FolderPath);
+        Debug.WriteLine("ConfiguredFileExtensions: " + String.Join(", ", this.ConfiguredFileExtensions));
+        Debug.WriteLine("Configured Multi File Extensions: " + String.Join(", ", new DynamicContextMenuExtension().ConfiguredFileExtensions.ParseMultipleExt().Select(x => "group(" + String.Join(", ", x) + ")")));
+        Debug.WriteLine("--------------------");
+#endif
         if (this.SelectedItemPaths.Count() == 1)
         {
             // Debug.Assert(false);
@@ -135,7 +138,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 Directory.Exists(this.SelectedItemPaths.First()) ||
                 ConfiguredFileExtensions.Any(x => x.Matching(ext)) ||
                 ConfiguredFileExtensions.Any(x => Path.GetFileName(path).MatchingAsExpression(x)) ||
-                ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
+                ConfiguredFileExtensions.Any(x => x.Matching("[any]")) ||
+                ConfiguredFileExtensions.ParseMultipleExt().Any(x => x != null ? x.Any(e => e.Matching(ext)) : false);
         }
         else
         {
@@ -175,6 +179,15 @@ public class DynamicContextMenuExtension : SharpContextMenu
         {
             var extraItems = BuildMenuFrom(GetConfigDirForAny(), selectedItemPaths.ToArgumentsString());
             items = items.Concat(extraItems).ToArray();
+        }
+        var multipleItemsCFE = ConfiguredFileExtensions.ParseMultipleExt().Where(x => x.Any(xe => selectedItemPaths.All(e => Path.GetExtension(e)?.Matching(xe) != null)));
+        if (multipleItemsCFE.Count() > 0)
+        {
+            multipleItemsCFE.ToList().ForEach(dir =>
+            {
+                var extraItems = BuildMenuFrom(GetConfigDirByPath("[" + string.Join(",", dir) + "]"), selectedItemPaths.ToArgumentsString());
+                items = items.Concat(extraItems).ToArray();
+            });
         }
 
         var menu = new ContextMenuStrip();
@@ -357,7 +370,13 @@ public class DynamicContextMenuExtension : SharpContextMenu
         public string dir;
     }
 
+#if DEBUG
+    public string[] ConfiguredFileExtensions
+
+#else
     string[] ConfiguredFileExtensions
+
+#endif
         => Directory.GetDirectories(App.ConfigDir)
                     .Select(x => x.GetFileName()) // gets dir name only without the rest of the path
                     .ToArray();
@@ -377,6 +396,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
     }
 
     string GetConfigDirForAny() => App.ConfigDir.PathJoin("[any]");
+    string GetConfigDirByPath(string dir) => App.ConfigDir.PathJoin(dir);
 }
 
 static class Utils
