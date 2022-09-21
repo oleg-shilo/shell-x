@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,23 +12,20 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using SharpShell;
 using SharpShell.Attributes;
 using SharpShell.SharpContextMenu;
 using ShellX;
-using static System.Environment;
 
 class App
 {
-    static int Main(string[] args)
+    public static int Main(string[] args)
     {
         if (args.Contains("-open"))
         {
             Console.WriteLine($"Opening config directory: '{ConfigDir}'");
             Process.Start("explorer", $"\"{ConfigDir}\"");
-        }
-        else if (args.Contains("-test"))
-        {
-            DynamicContextMenuExtension.Execute(@"C:\Users\oleg.shilo\AppData\Roaming\shell-x\txt\01.=== Shell-X for •.txt file ===\03.Show Path.c.ps1", "");
         }
         else if (args.ContainsAny("-init"))
         {
@@ -41,8 +39,8 @@ class App
             File.WriteAllText(dir.PathJoin("02.separator"), "");
             File.WriteAllText(dir.PathJoin("03.Show Info.c.cmd"), $"dir %*{NewLine}pause");
             File.WriteAllText(dir.PathJoin("03.Show Path.c.ps1"), $"Write-Host \"File: $($args[0])\" \n" +
-                                                                            $"Write-Host -NoNewLine 'Press any key to continue...'; " +
-                                                                            $"$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');");
+                                                                      $"Write-Host -NoNewLine 'Press any key to continue...'; " +
+                                                                          $"$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');");
             File.WriteAllText(dir.PathJoin("04.separator"), "");
             File.WriteAllText(dir.PathJoin("05.Shell-X configure.cmd"), $"explorer \"{ConfigDir}\"");
             Resources.logo.Save(dir.PathJoin("05.Shell-X configure.ico"));
@@ -56,6 +54,10 @@ class App
 
             if (!args.ContainsAny("-noui"))
                 Process.Start("explorer", $"\"{ConfigDir}\"");
+        }
+        else if (args.ContainsAny("-test"))
+        {
+            return ExplorerStub.Test(args.Where(x => x != "-test").FirstOrDefault());
         }
         else if (args.ContainsAny("-register", "-r"))
         {
@@ -86,6 +88,8 @@ class App
             Console.WriteLine($"  -open           Opens configuration folder.");
             Console.WriteLine($"                  You can edit the context menus by changing the content of this folder");
             Console.WriteLine($"  -init           Creates the sample configuration (e.g. for *.txt files).");
+            Console.WriteLine($"  -test <path>    Creates the context menu for a given path and shows it without the need to " +
+                              $"                  interact with the explorer.");
             Console.WriteLine($"  -register|-r    Registers shell extension server");
             Console.WriteLine($"  -unregister|-u  Unregisters shell extension server");
         }
@@ -101,6 +105,40 @@ class App
                                                    .EnsureDirectory();
 }
 
+public class ExplorerSelectionStub
+{
+    DynamicContextMenuExtension extension = new DynamicContextMenuExtension();
+
+    public ExplorerSelectionStub(params string[] selection)
+    {
+        SetItemPaths(selection.ToList());
+    }
+
+    public void SetItemPaths(List<string> selection)
+    {
+        var field = typeof(ShellExtInitServer).GetField("selectedItemPaths", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        var paths = (List<string>)field.GetValue(extension);
+        paths.AddRange(selection);
+    }
+
+    public bool CanShowMenu()
+    {
+        return (bool)
+            extension.GetType()
+                     .GetMethod("CanShowMenu", BindingFlags.NonPublic | BindingFlags.Instance)
+                     .Invoke(extension, new object[0]);
+    }
+
+    public ContextMenuStrip CreateMenu()
+    {
+        return (ContextMenuStrip)
+            extension.GetType()
+                     .GetMethod("CreateMenu", BindingFlags.NonPublic | BindingFlags.Instance)
+                     .Invoke(extension, new object[0]);
+    }
+}
+
 [ComVisible(true)]
 // [COMServerAssociation(AssociationType.ClassOfExtension, ".dll", ".txt", ".cs")]
 [COMServerAssociation(AssociationType.AllFiles)]
@@ -109,7 +147,6 @@ class App
 public class DynamicContextMenuExtension : SharpContextMenu
 {
     static int lastPopupTime = 0;
-
 
     protected override bool CanShowMenu()
     {
@@ -135,10 +172,12 @@ public class DynamicContextMenuExtension : SharpContextMenu
             var ext = Path.GetExtension(path).Replace(".", "");
 
             return
-                Directory.Exists(this.SelectedItemPaths.First()) ||
+                Directory.Exists(path) || // always allow for folders as it is the only way to invoke shell-x config (single menu item)
                 ConfiguredFileExtensions.Any(x => x.Matching(ext)) ||
                 ConfiguredFileExtensions.Any(x => Path.GetFileName(path).MatchingAsExpression(x)) ||
                 ConfiguredFileExtensions.Any(x => x.Matching("[any]")) ||
+                (ConfiguredFileExtensions.Any(x => x.Matching("[file]")) && path.IsFile()) ||
+                (ConfiguredFileExtensions.Any(x => x.Matching("[folder]")) && path.IsDir()) ||
                 ConfiguredFileExtensions.ParseMultipleExt().Any(x => x != null ? x.Any(e => e.Matching(ext)) : false);
         }
         else
@@ -153,7 +192,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     if (this.SelectedItemPaths.Any())
                         return ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
                     else
-                        return ConfiguredFileExtensions.Any(x => x.Matching("[FOLDER]"));
+                        return ConfiguredFileExtensions.Any(x => x.Matching("[folder]"));
                 }
             }
         }
@@ -180,7 +219,15 @@ public class DynamicContextMenuExtension : SharpContextMenu
             var extraItems = BuildMenuFrom(GetConfigDirForAny(), selectedItemPaths.ToArgumentsString());
             items = items.Concat(extraItems).ToArray();
         }
+
+        if (ConfiguredFileExtensions.Any(x => x.Matching("[file]")) && selectedItemPaths[0].IsFile())
+        {
+            var extraItems = BuildMenuFrom(GetConfigDirByPath("[file]"), selectedItemPaths.ToArgumentsString());
+            items = items.Concat(extraItems).ToArray();
+        }
+
         var multipleItemsCFE = ConfiguredFileExtensions.ParseMultipleExt().Where(x => x.Any(xe => selectedItemPaths.All(e => Path.GetExtension(e)?.Matching(xe) != null)));
+
         if (multipleItemsCFE.Count() > 0)
         {
             multipleItemsCFE.ToList().ForEach(dir =>
@@ -371,9 +418,11 @@ public class DynamicContextMenuExtension : SharpContextMenu
     }
 
 #if DEBUG
+
     public string[] ConfiguredFileExtensions
 
 #else
+
     string[] ConfiguredFileExtensions
 
 #endif
@@ -388,14 +437,15 @@ public class DynamicContextMenuExtension : SharpContextMenu
             return dir;
 
         var match = Directory
-                   .GetDirectories(App.ConfigDir)
-                   .Where(x => Path.GetFileName(file).MatchingAsExpression(Path.GetFileName(x)))
-                   .FirstOrDefault();
+                    .GetDirectories(App.ConfigDir)
+                    .Where(x => Path.GetFileName(file).MatchingAsExpression(Path.GetFileName(x)))
+                    .FirstOrDefault();
 
         return match;
     }
 
     string GetConfigDirForAny() => App.ConfigDir.PathJoin("[any]");
+
     string GetConfigDirByPath(string dir) => App.ConfigDir.PathJoin(dir);
 }
 

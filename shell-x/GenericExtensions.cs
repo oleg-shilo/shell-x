@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using ShellX;
 
 static class DSLExtensions
 {
@@ -31,6 +32,7 @@ static class DSLExtensions
         catch { }
         return registered;
     }
+
     public static string[][] ParseMultipleExt(this string[] items)
     {
         return items.Select((x) => x.Contains(",") && x.StartsWith("[") && x.EndsWith("]") ? x.Substring(1, x.Length - 2).Split(',') : null).Where(x => x != null).ToArray();
@@ -65,6 +67,8 @@ static class DSLExtensions
     public static string GetTitle(this Assembly assembly) => assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
 
     public static bool IsDir(this string path) => File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+
+    public static bool IsFile(this string path) => !path.IsDir();
 
     public static string ToArgumentsString(this IEnumerable<string> args) => string.Join(" ", args.Select(x => $"\"{x}\"").ToArray());
 
@@ -142,5 +146,14 @@ static class DSLExtensions
 
         sb.Append("$");
         return sb.ToString();
+    }
+}
+
+class ExplorerStub
+{
+    public static int Test(string path)
+    {
+        TestForm.Show(path);
+        return 0;
     }
 }
