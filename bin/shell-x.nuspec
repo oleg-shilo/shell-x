@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>shell-x</id>
-        <version>1.2.0.0</version>
+        <version>1.3.0.0</version>
         <title>Shell-X</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -20,9 +20,9 @@
 
         <summary>Shell-X</summary>
         <releaseNotes>
-Release v1.2.0.0
-- Issue #4: Removing icons is not possible because locking
-- Issue #5: PowerShell support
+Release v1.3.0.0
+- Issue #8: [Request] Support for wildcard with file extensions
+- Issue #10: Directory background support
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>C# Windows Explorer context menu shell</tags>
