@@ -64,14 +64,24 @@ You can open configuration folder any time by executing the _open_ command in co
 shell-x -open
 ```
 
+There is also an option (v1.4.0+) for testing the configuration outside of the Windows explorer
+
+```
+shell-x -test [path]
+```
+It is helpful for refining the mapping of the configuration to the selected item (path) actions.
+
+![image](https://user-images.githubusercontent.com/16729806/191431089-d71bbc08-1722-4cae-ae2d-b315129902eb.png)
 
 ## How it works
 
 Shell-X maintains a global directory, which file tree structure defines the complex context menu tree to be displayed at runtime on right click.
 
 The root folders are named according the file extension that the context menu is for. Thus the folder `txt` contains context menu definition for all text files, the `dll` folder is for all DLLs. And there are two special folder names:
-- `[any]` that defines the context menu for any file type.
-- `[folder]` that defines the context menu for a folder.
+- `[any]` that defines the context menu for any file or a folder.
+- `[folder]` that defines the context menu for any folder.
+- `[file]` that defines the context menu for a file.
+
 
 Below is the example of the configuration for two separate context menus for text files and for any file.
 
