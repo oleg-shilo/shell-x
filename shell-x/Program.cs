@@ -214,28 +214,32 @@ public class DynamicContextMenuExtension : SharpContextMenu
         var configDir = GetConfigDirFor(selectedItemPaths.First());
         var items = BuildMenuFrom(configDir, selectedItemPaths.ToArgumentsString());
 
-        if (ConfiguredFileExtensions.Any(x => x.Matching("[any]")))
+        try
         {
-            var extraItems = BuildMenuFrom(GetConfigDirForAny(), selectedItemPaths.ToArgumentsString());
-            items = items.Concat(extraItems).ToArray();
-        }
-
-        if (ConfiguredFileExtensions.Any(x => x.Matching("[file]")) && selectedItemPaths[0].IsFile())
-        {
-            var extraItems = BuildMenuFrom(GetConfigDirByPath("[file]"), selectedItemPaths.ToArgumentsString());
-            items = items.Concat(extraItems).ToArray();
-        }
-
-        var multipleItemsCFE = ConfiguredFileExtensions.ParseMultipleExt().Where(x => x.Any(xe => selectedItemPaths.All(e => Path.GetExtension(e)?.Matching(xe) != null)));
-
-        if (multipleItemsCFE.Count() > 0)
-        {
-            multipleItemsCFE.ToList().ForEach(dir =>
+            if (ConfiguredFileExtensions.Any(x => x.Matching("[any]")))
             {
-                var extraItems = BuildMenuFrom(GetConfigDirByPath("[" + string.Join(",", dir) + "]"), selectedItemPaths.ToArgumentsString());
+                var extraItems = BuildMenuFrom(GetConfigDirForAny(), selectedItemPaths.ToArgumentsString());
                 items = items.Concat(extraItems).ToArray();
-            });
+            }
+
+            if (ConfiguredFileExtensions.Any(x => x.Matching("[file]")) && selectedItemPaths[0].IsFile())
+            {
+                var extraItems = BuildMenuFrom(GetConfigDirByPath("[file]"), selectedItemPaths.ToArgumentsString());
+                items = items.Concat(extraItems).ToArray();
+            }
+
+            var multipleItemsCFE = ConfiguredFileExtensions.ParseMultipleExt().Where(x => x.Any(xe => selectedItemPaths.All(e => Path.GetExtension(e)?.Matching(xe) != null)));
+
+            if (multipleItemsCFE.Count() > 0)
+            {
+                multipleItemsCFE.ToList().ForEach(dir =>
+                {
+                    var extraItems = BuildMenuFrom(GetConfigDirByPath("[" + string.Join(",", dir) + "]"), selectedItemPaths.ToArgumentsString());
+                    items = items.Concat(extraItems).ToArray();
+                });
+            }
         }
+        catch { }
 
         var menu = new ContextMenuStrip();
         menu.Items.AddRange(items);
@@ -370,44 +374,56 @@ public class DynamicContextMenuExtension : SharpContextMenu
         lock (typeof(App))
         {
             bool showConsole = item.EndsWithAny(".c.cmd", ".c.bat", ".c.ps1");
-            try
+            bool handleMultiselect = item.Contains(".ms.");
+
+            var arguments = new List<string>();
+
+            if (handleMultiselect)
+                arguments.AddRange(invokeArguments.SplitCommandLine());
+            else
+                arguments.Add(invokeArguments);
+
+            foreach (var arg in arguments)
             {
-                var p = new Process();
-                p.StartInfo.FileName = item;
-                p.StartInfo.Arguments = invokeArguments;
-
-                // Debug.Assert(false);
-
-                if (item.EndsWithAny(".ps1"))
+                try
                 {
-                    p.StartInfo.FileName = "powershell.exe";
-                    p.StartInfo.Arguments = $"\"{CloneScript(item)}\" {invokeArguments}";
-                }
+                    var p = new Process();
+                    p.StartInfo.FileName = item;
+                    p.StartInfo.Arguments = arg;
 
-                if (showConsole)
-                {
-                    // code below works very well and produces less noise
-                    // though it unconditionally waits. Thus an orthodox execution as
-                    // above is adequate particularly because it lets user to pose (with 'pause')
-                    // in the batch file or path through to the exit.
+                    // Debug.Assert(false);
 
-                    // p.StartInfo.FileName = "cmd.exe";
-                    // p.StartInfo.Arguments = $"/K \"\"{item}\" {invokeArguments}";
+                    if (item.EndsWithAny(".ps1"))
+                    {
+                        p.StartInfo.FileName = "powershell.exe";
+                        p.StartInfo.Arguments = $"\"{CloneScript(item)}\" {invokeArguments}";
+                    }
+
+                    if (showConsole)
+                    {
+                        // code below works very well and produces less noise
+                        // though it unconditionally waits. Thus an orthodox execution as
+                        // above is adequate particularly because it lets user to pose (with 'pause')
+                        // in the batch file or path through to the exit.
+
+                        // p.StartInfo.FileName = "cmd.exe";
+                        // p.StartInfo.Arguments = $"/K \"\"{item}\" {invokeArguments}";
+                    }
+                    else
+                    {
+                        p.StartInfo.UseShellExecute = false;
+                        p.StartInfo.RedirectStandardOutput = true;
+                        p.StartInfo.CreateNoWindow = true;
+                    }
+                    p.Start();
                 }
-                else
+                catch (Exception ex)
                 {
-                    p.StartInfo.UseShellExecute = false;
-                    p.StartInfo.RedirectStandardOutput = true;
-                    p.StartInfo.CreateNoWindow = true;
-                }
-                p.Start();
+                    MessageBox.Show($"Error: {ex}", App.Name);
+                };
+
+                Task.Run(Cleanup);
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex}", App.Name);
-            };
-
-            Task.Run(Cleanup);
         }
     }
 

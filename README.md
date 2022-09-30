@@ -102,10 +102,13 @@ Since the menu items are composed according the configuration folder file struct
 
 * File name
   ```
-  <two_digits_order_prefix>.<menu_item_name>[.c].<cmd|bat|ps1>
+  <two_digits_order_prefix>.<menu_item_name>[.c][.ms].<cmd|bat|ps1>
   ```
 
 * By default the batch file is executed with the console window hidden. If you prefer console being visible include `.c` suffix before the batch file extension.
+
+* `.ms` in the file name has special meaning. It indicates that the batch file supports multi-select scenario. Thus if multiple files are selected and executed against the shell extension menu item then every file will be executed in it's own process of the corresponding batch file. Otherwise, by default, all files are passed to a single batch file.
+
 
 * If you want the menu item to have the icon then place the icon file in the same folder where the corresponding batch file is and give it the same file name as the batch file but with the _".ico"_ extension:
   ```
