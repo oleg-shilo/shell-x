@@ -373,7 +373,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
     {
         lock (typeof(App))
         {
-            bool showConsole = item.EndsWithAny(".c.cmd", ".c.bat", ".c.ps1");
+            bool showConsole = item.Contains(".c.");
             bool handleMultiselect = item.Contains(".ms.");
 
             var arguments = new List<string>();
@@ -389,7 +389,11 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 {
                     var p = new Process();
                     p.StartInfo.FileName = item;
-                    p.StartInfo.Arguments = arg;
+
+                    // if (arg.StartsWith("\"") && arg.EndsWith("\""))
+                    //     p.StartInfo.Arguments = arg;
+                    // else
+                    p.StartInfo.Arguments = $"\"{arg}\"";
 
                     // Debug.Assert(false);
 

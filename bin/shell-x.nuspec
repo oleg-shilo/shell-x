@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>shell-x</id>
-        <version>1.4.0.0</version>
+        <version>1.5.0.0</version>
         <title>Shell-X</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -20,10 +20,10 @@
 
         <summary>Shell-X</summary>
         <releaseNotes>
-Release v1.4.0.0
-- Added offline testing workflow (`shell-x.exe -test &lt;selected path&gt;`)
-- Issue #13: [Request] Special folder just for files
-- Added support for multi ext folder
+Release v1.5.0.0
+- Added support multiselect execution of every selected file in the dedicated instance of the batch file process.
+- Issue #16: Question about executing the BAT file in the menu
+
 
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>

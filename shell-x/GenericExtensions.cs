@@ -89,10 +89,8 @@ static class DSLExtensions
     public static string ToFileMenuText(this string path) => path.GetFileName()
                                                                  .Split(new[] { '.' }, 2)
                                                                  .Last()
-                                                                 .Replace(".c.cmd", "")
-                                                                 .Replace(".c.bat", "")
-                                                                 .Replace(".c.ps1", "")
-                                                                 .Replace(".ms", "")
+                                                                 .Replace(".c.", ".")
+                                                                 .Replace(".ms.", ".")
                                                                  .Replace(".cmd", "")
                                                                  .Replace(".bat", "")
                                                                  .Replace(".ps1", "");
