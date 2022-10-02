@@ -5,7 +5,7 @@ $url = 'https://github.com/oleg-shilo/shell-x/releases/download/v1.5.0.0/shell-x
 $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $app = Join-Path $installDir "shell-x.exe"
 #Write-Host "$app"
-$cheksum = '6C4CBE1841B9C41099296EF513CEF81559DAF9B98A2DBC2581DFD0FA86B5469D'
+$cheksum = 'A3741697694D423FE2D42986E1ADAB992B2DDCEF7CDBC0B652B9CE4149D3B8B3'
 $checksumType = "sha256"
 
 # Download and unpack a zip file
