@@ -390,12 +390,10 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     var p = new Process();
                     p.StartInfo.FileName = item;
 
-                    // if (arg.StartsWith("\"") && arg.EndsWith("\""))
-                    //     p.StartInfo.Arguments = arg;
-                    // else
-                    p.StartInfo.Arguments = $"\"{arg}\"";
-
-                    // Debug.Assert(false);
+                    if (arg.StartsWith("\"") && arg.EndsWith("\""))
+                        p.StartInfo.Arguments = arg;
+                    else
+                        p.StartInfo.Arguments = $"\"{arg}\"";
 
                     if (item.EndsWithAny(".ps1"))
                     {
