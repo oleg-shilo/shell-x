@@ -53,6 +53,11 @@ _Manually_
   shell-x -r
   shell-x -init
   ```
+To uninstall just execute:
+  ```
+  shell-x -unregister
+  ```
+  Note, the explorer may lock the extension file so yuou may need to restart it before you can the file. 
 
 _Configuration_
 
