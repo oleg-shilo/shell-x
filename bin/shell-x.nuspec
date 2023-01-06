@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>shell-x</id>
-        <version>1.5.1.0</version>
+        <version>1.5.2.0</version>
         <title>Shell-X</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -20,8 +20,8 @@
 
         <summary>Shell-X</summary>
         <releaseNotes>
-Release v1.5.1.0
-- Issues #17: 1.5.0.0 and spaces in filename
+Release v1.5.2
+- Issue #12: Icon too big on nested context menu
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>C# Windows Explorer context menu shell</tags>
