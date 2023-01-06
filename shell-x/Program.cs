@@ -293,6 +293,13 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         Image = LookupImageFor(item)
                     };
 
+                    try
+                    {
+                        var size = parentMenu.ContentRectangle.Height.ToStandardIconSize();
+                        parentMenu.Image = parentMenu.Image?.Resize(size, size);
+                    }
+                    catch { }
+
                     current.AddItem(parentMenu);
                     dirsToProcess.Enqueue(new BuildItem
                     {
@@ -316,7 +323,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
                         try
                         {
-                            menu.Image = menu.Image?.Resize(menu.ContentRectangle.Height, menu.ContentRectangle.Height);
+                            var size = menu.ContentRectangle.Height.ToStandardIconSize();
+                            menu.Image = menu.Image?.Resize(size, size);
                         }
                         catch { }
 

@@ -97,6 +97,12 @@ static class DSLExtensions
 
     public static string ToDirMenuText(this string path) => path.GetFileName().Split(new[] { '.' }, 2).Last();
 
+    public static int ToStandardIconSize(this int customSize)
+    {
+        var standardSizes = new[] { 16, 32, 48, 256 };
+        return standardSizes.OrderBy(x => Math.Abs((long)x - customSize)).First();
+    }
+
     public static string GetFileNameWithoutExtension(this string path) => Path.GetFileNameWithoutExtension(path);
 
     //Credit to MDbg team: https://github.com/SymbolSource/Microsoft.Samples.Debugging/blob/master/src/debugger/mdbg/mdbgCommands.cs
