@@ -57,7 +57,7 @@ To uninstall just execute:
   ```
   shell-x -unregister
   ```
-  Note, the explorer may lock the extension file so yuou may need to restart it before you can the file. 
+  Note, the explorer may lock the extension file so you may need to restart it before you can delete the file. 
 
 _Configuration_
 
