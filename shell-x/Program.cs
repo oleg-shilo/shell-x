@@ -254,8 +254,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
         var menu = new ContextMenuStrip();
         menu.Items.AddRange(items);
 
-        // DisposeLastMenu();
-        // lastOpenedMenu = menu;
+        DisposeLastMenu();
+        lastOpenedMenu = menu;
 
         return menu;
     }
@@ -276,8 +276,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 }
                 catch { }
             }
-            // lastOpenedMenu.Close();
-            // lastOpenedMenu.Dispose();
+            lastOpenedMenu.Close();
+            lastOpenedMenu.Dispose();
         }
     }
 
@@ -329,7 +329,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     try
                     {
                         var size = parentMenu.ContentRectangle.Height.ToStandardIconSize();
-                        parentMenu.Image = parentMenu.Image?.Resize(size, size, dispose: true);
+                        parentMenu.Image = parentMenu.Image?.Resize(size, size);
                     }
                     catch { }
 
@@ -358,7 +358,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         {
                             var size = menu.ContentRectangle.Height.ToStandardIconSize();
 
-                            menu.Image = menu.Image?.Resize(size, size, dispose: true);
+                            menu.Image = menu.Image?.Resize(size, size);
                         }
                         catch { }
 
@@ -539,7 +539,7 @@ static class Utils
         }
     }
 
-    public static Bitmap Resize(this Image image, int width, int height, bool dispose)
+    public static Bitmap Resize(this Image image, int width, int height)
     {
         var destRect = new Rectangle(0, 0, width, height);
         var destImage = new Bitmap(width, height);
@@ -561,8 +561,6 @@ static class Utils
             }
         }
 
-        if (dispose)
-            image.Dispose();
         return destImage;
     }
 }
