@@ -64,6 +64,13 @@ static class DSLExtensions
     public static string PathJoin(this string path, params string[] paths)
         => Path.Combine(new[] { path }.Concat(paths).ToArray());
 
+    public static IEnumerable<T> ForEach<T>(this IEnumerable<T> collection, Action<T> action)
+    {
+        foreach (var item in collection)
+            action(item);
+        return collection;
+    }
+
     public static string GetTitle(this Assembly assembly) => assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
 
     public static bool IsDir(this string path) => File.GetAttributes(path).HasFlag(FileAttributes.Directory);

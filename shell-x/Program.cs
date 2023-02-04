@@ -228,14 +228,24 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 items = items.Concat(extraItems).ToArray();
             }
 
-            var multipleItemsCFE = ConfiguredFileExtensions.ParseMultipleExt().Where(x => x.Any(xe => selectedItemPaths.All(e => Path.GetExtension(e)?.Matching(xe) != null)));
+            var multiItemConfiguredFileExt = ConfiguredFileExtensions.ParseMultipleExt().Where(x => x.Any(xe => selectedItemPaths.All(e => Path.GetExtension(e)?.Matching(xe) != null)));
 
-            if (multipleItemsCFE.Count() > 0)
+            if (multiItemConfiguredFileExt.Count() > 0)
             {
-                multipleItemsCFE.ToList().ForEach(dir =>
+                multiItemConfiguredFileExt.ForEach(extList =>
                 {
-                    var extraItems = BuildMenuFrom(GetConfigDirByPath("[" + string.Join(",", dir) + "]"), selectedItemPaths.ToArgumentsString());
-                    items = items.Concat(extraItems).ToArray();
+                    if (selectedItemPaths.All(File.Exists)) // all files, not dirs
+                    {
+                        bool selectedExtensionIsConfigured = selectedItemPaths.Select(Path.GetExtension)        // .ext
+                                                                              .Select(x => x.TrimStart('.'))    // ext
+                                                                              .All(x => extList.Contains(x));   // present in the configured extensions
+
+                        if (selectedExtensionIsConfigured)
+                        {
+                            var extraItems = BuildMenuFrom(GetConfigDirByPath("[" + string.Join(",", extList) + "]"), selectedItemPaths.ToArgumentsString());
+                            items = items.Concat(extraItems).ToArray();
+                        }
+                    }
                 });
             }
         }
