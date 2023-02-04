@@ -253,7 +253,32 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
         var menu = new ContextMenuStrip();
         menu.Items.AddRange(items);
+
+        // DisposeLastMenu();
+        // lastOpenedMenu = menu;
+
         return menu;
+    }
+
+    static ContextMenuStrip lastOpenedMenu;
+
+    void DisposeLastMenu()
+    {
+        if (lastOpenedMenu != null)
+        {
+            foreach (var item in lastOpenedMenu.Items.OfType<ToolStripMenuItem>())
+            {
+                try
+                {
+                    var img = item.Image;
+                    item.Image = null;
+                    img?.Dispose();
+                }
+                catch { }
+            }
+            // lastOpenedMenu.Close();
+            // lastOpenedMenu.Dispose();
+        }
     }
 
     static Image LookupImageFor(string path)
@@ -272,8 +297,6 @@ public class DynamicContextMenuExtension : SharpContextMenu
         var img = File.Exists(imgFile) ? imgFile.ReadImage() : null;
         return img;
     }
-
-    static List<Image> LoadedImages = new List<Image>();
 
     internal static ToolStripItem[] BuildMenuFrom(string configDir, string invokeArguments)
     {
@@ -306,7 +329,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     try
                     {
                         var size = parentMenu.ContentRectangle.Height.ToStandardIconSize();
-                        parentMenu.Image = parentMenu.Image?.Resize(size, size);
+                        parentMenu.Image = parentMenu.Image?.Resize(size, size, dispose: true);
                     }
                     catch { }
 
@@ -334,7 +357,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         try
                         {
                             var size = menu.ContentRectangle.Height.ToStandardIconSize();
-                            menu.Image = menu.Image?.Resize(size, size);
+
+                            menu.Image = menu.Image?.Resize(size, size, dispose: true);
                         }
                         catch { }
 
@@ -353,21 +377,23 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
     public static void Cleanup()
     {
-        LoadedImages.ForEach(i => i.Dispose());
-
-        var except = Process.GetCurrentProcess().Id.ToString();
-        Directory.GetFiles(App.ConfigDir.PathJoin(".run").EnsureDirectory(), "*.*.ps1")
-                 .Select(x => new { path = x, pid = x.GetFileName().Split('.').First() })
-                 .Where(x => x.pid != except)
-                 .ToList()
-                 .ForEach(x =>
-                 {
-                     try
+        try
+        {
+            var except = Process.GetCurrentProcess().Id.ToString();
+            Directory.GetFiles(App.ConfigDir.PathJoin(".run").EnsureDirectory(), "*.*.ps1")
+                     .Select(x => new { path = x, pid = x.GetFileName().Split('.').First() })
+                     .Where(x => x.pid != except)
+                     .ToList()
+                     .ForEach(x =>
                      {
-                         File.Delete(x.path);
-                     }
-                     catch { }
-                 });
+                         try
+                         {
+                             File.Delete(x.path);
+                         }
+                         catch { }
+                     });
+        }
+        catch { }
     }
 
     public static string CloneScript(string script)
@@ -487,18 +513,33 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
 static class Utils
 {
+    static Dictionary<string, Image> loadedImages = new Dictionary<string, Image>();
+
     public static Image ReadImage(this string file)
     {
+        var imageId = $"{file}{File.GetLastWriteTimeUtc(file).ToFileTimeUtc()}";
+
+        if (loadedImages.ContainsKey(imageId))
+            return loadedImages[imageId];
+
         using (var ms = new MemoryStream(File.ReadAllBytes(file)))
         {
+            Image image;
             if (string.Compare(Path.GetExtension(file), ".ico", StringComparison.OrdinalIgnoreCase) == 0)
-                return new Icon(ms).ToBitmap();
+            {
+                using (var temp = new Icon(ms))
+                    image = temp.ToBitmap();
+            }
             else
-                return Image.FromStream(ms);
+            {
+                image = Image.FromStream(ms);
+            }
+            loadedImages[imageId] = image;
+            return image;
         }
     }
 
-    public static Bitmap Resize(this Image image, int width, int height)
+    public static Bitmap Resize(this Image image, int width, int height, bool dispose)
     {
         var destRect = new Rectangle(0, 0, width, height);
         var destImage = new Bitmap(width, height);
@@ -520,6 +561,8 @@ static class Utils
             }
         }
 
+        if (dispose)
+            image.Dispose();
         return destImage;
     }
 }
