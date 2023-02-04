@@ -57,7 +57,7 @@ To uninstall just execute:
   ```
   shell-x -unregister
   ```
-  Note, the explorer may lock the extension file so yuou may need to restart it before you can the file. 
+  Note, the explorer may lock the extension file so you may need to restart it before you can delete the file. 
 
 _Configuration_
 
@@ -83,9 +83,9 @@ It is helpful for refining the mapping of the configuration to the selected item
 Shell-X maintains a global directory, which file tree structure defines the complex context menu tree to be displayed at runtime on right click.
 
 The root folders are named according the file extension that the context menu is for. Thus the folder `txt` contains context menu definition for all text files, the `dll` folder is for all DLLs. And there are two special folder names:
-- `[any]` that defines the context menu for any file or a folder.
-- `[folder]` that defines the context menu for any folder.
-- `[file]` that defines the context menu for a file.
+- `[any]` that defines the context menu for any selected file or a folder.
+- `[folder]` that defines the context menu for any selected folder.
+- `[file]` that defines the context menu for any selected file.
 
 
 Below is the example of the configuration for two separate context menus for text files and for any file.
