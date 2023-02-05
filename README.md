@@ -35,6 +35,8 @@ Below are the some of Shell-X features that extend Windows "Send to" approach:
 * Definitive menu items order thanks to the use of the sortable prefixes in the file names.
 * Individual context menu definitions for file types based on the file extension.
 
+_Note, that intencive use of icons may lead to the memory exhaustion.. This is Windows Explorer bug / design flaw. Thus don't overuse this feature. You can read more about this in [this therad](https://github.com/oleg-shilo/shell-x/issues/22)._
+
 ## Installation
 
 _With Chocolatey_
