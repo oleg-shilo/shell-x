@@ -1,10 +1,13 @@
-﻿using System;
+﻿using SharpShell;
+using SharpShell.Attributes;
+using SharpShell.SharpContextMenu;
+using ShellX;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,11 +15,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Environment;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using SharpShell;
-using SharpShell.Attributes;
-using SharpShell.SharpContextMenu;
-using ShellX;
 
 class App
 {
@@ -182,19 +182,25 @@ public class DynamicContextMenuExtension : SharpContextMenu
         }
         else
         {
-            foreach (string item in ConfiguredFileExtensions)
+            var extensions = ConfiguredFileExtensions.SelectMany(x =>
+            {
+                if (x.StartsWith("[") && x.EndsWith("]") && x.Contains(","))
+                    return x.Substring(1, x.Length - 2).Split(',');
+                else
+                    return new[] { x };
+            });
+
+            foreach (string item in extensions)
             {
                 var ext = "." + item;
                 if (this.SelectedItemPaths.All(x => x.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     return true;
-                else
-                {
-                    if (this.SelectedItemPaths.Any())
-                        return ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
-                    else
-                        return ConfiguredFileExtensions.Any(x => x.Matching("[folder]"));
-                }
             }
+
+            if (this.SelectedItemPaths.Any())
+                return ConfiguredFileExtensions.Any(x => x.Matching("[any]"));
+            else
+                return ConfiguredFileExtensions.Any(x => x.Matching("[folder]"));
         }
         return false;
     }
