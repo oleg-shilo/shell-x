@@ -144,7 +144,7 @@ will look like this: ⁎.ar.⁎.
 ## Naming Convention
 
 The naming convention for configuration folders:
-Read more at https://github.com/oleg-shilo/shell-x/?tab=readme-ov-file#how-it-works
+
 - `<extension>`<br>
    Any selected file, whose extension is the same as the name of the folder (e.g. `txt`).
 - `[any]`<br>
