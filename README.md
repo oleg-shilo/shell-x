@@ -141,6 +141,21 @@ Simply copy the characters from this description, compose the desired pattern in
 Thus your desired pattern for files cmn.ar.00, cmn.ar.01,. . .
 will look like this: ⁎.ar.⁎.  
 
+## Naming Convention
+
+The naming convention for configuration folders:
+Read more at https://github.com/oleg-shilo/shell-x/?tab=readme-ov-file#how-it-works
+- <extension>
+  Any selected file, whose extension is the same as the name of the folder (e.g. `txt`).
+- [any]
+  Any selected path
+- [file]
+  Any selected file
+- [folder]
+  Any selected folder
+- [<extension1>,<extension2>,..<extensionN>]
+  A selected file, whose extension is one of the comma-delimited values in the folder name (e.g. `[png,bmp,jpeg]`).
+  
 ## Limitations
 
 * When the user right-clicks a file and the plugin is loaded for the very first time there is a noticeable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one-off limitation and any subsequent right-clicks bring the context menu instantly.
