@@ -145,15 +145,15 @@ will look like this: ⁎.ar.⁎.
 
 The naming convention for configuration folders:
 Read more at https://github.com/oleg-shilo/shell-x/?tab=readme-ov-file#how-it-works
-- <extension>
-  Any selected file, whose extension is the same as the name of the folder (e.g. `txt`).
-- [any]
+- `<extension>`<br>
+   Any selected file, whose extension is the same as the name of the folder (e.g. `txt`).
+- `[any]`<br>
   Any selected path
-- [file]
+- `[file]`<br>
   Any selected file
-- [folder]
+- `[folder]`<br>
   Any selected folder
-- [<extension1>,<extension2>,..<extensionN>]
+- `[<extension1>,<extension2>,..<extensionN>]`<br>
   A selected file, whose extension is one of the comma-delimited values in the folder name (e.g. `[png,bmp,jpeg]`).
   
 ## Limitations
