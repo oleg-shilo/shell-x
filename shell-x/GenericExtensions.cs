@@ -35,7 +35,7 @@ static class DSLExtensions
 
     public static string[][] ParseMultipleExt(this string[] items)
     {
-        return items.Select((x) => x.Contains(",") && x.StartsWith("[") && x.EndsWith("]") ? x.Substring(1, x.Length - 2).Split(',') : null).Where(x => x != null).ToArray();
+        return items.Select(x => !Globals.IsSpecialFolder(x) && x.StartsWith("[") && x.EndsWith("]") ? x.Substring(1, x.Length - 2).Split(',') : null).Where(x => x != null).ToArray();
     }
 
     public static bool Matching(this string text, string pattern, bool ignoreCase = true)
