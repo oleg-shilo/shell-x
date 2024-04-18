@@ -89,9 +89,9 @@ The root folders are named according to the file extension that the context menu
 - `[folder]` that defines the context menu for any selected folder.
 - `[file]` that defines the context menu for any selected file.
 
-**Note A**, if you want multiple extension files to be handled the same way (by a single handler) you can achieve this by naming the special root folder with the comma-separated extension names enclosed in the square brackets. IE for menu item associated with editing JPEG and BMP Files the folder name should be `[jpeg,bmp]`: 
+**Note A**, if you want multiple extension files to be handled the same way (by a single handler) you can achieve this by naming the special folder with the comma-separated extension names enclosed in the square brackets. IE for menu item associated with editing JPEG and BMP Files the folder name should be `[jpeg,bmp]`: 
 
-**Note B** All special folders have their name enclosed in square brackets (e.g. `[any]`) and all folders for specific file extension have their names exactly matching the extension text (e.g. `txt`).
+**Note B** All special folders have their name enclosed in square brackets (e.g. `[any]` or `[txt,md]`) and all folders for specific file extension have their names exactly matching the extension text (e.g. `txt`).
 
 ![image](https://github.com/oleg-shilo/shell-x/assets/16729806/21ad4206-2043-4d66-903c-ec881a84e95e)
 
