@@ -138,18 +138,22 @@ public class ExplorerSelectionStub
 
     public bool CanShowMenu()
     {
-        return (bool)
+        var result = (bool)
             extension.GetType()
                      .GetMethod("CanShowMenu", BindingFlags.NonPublic | BindingFlags.Instance)
                      .Invoke(extension, new object[0]);
+
+        return result;
     }
 
     public ContextMenuStrip CreateMenu()
     {
-        return (ContextMenuStrip)
+        var result = (ContextMenuStrip)
             extension.GetType()
                      .GetMethod("CreateMenu", BindingFlags.NonPublic | BindingFlags.Instance)
                      .Invoke(extension, new object[0]);
+
+        return result;
     }
 }
 
@@ -266,9 +270,11 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 {
                     if (selectedItemPaths.All(File.Exists)) // all files, not dirs
                     {
-                        bool selectedExtensionIsConfigured = selectedItemPaths.Select(Path.GetExtension)        // .ext
-                                                                              .Select(x => x.TrimStart('.'))    // ext
-                                                                              .All(x => extList.Contains(x));   // present in the configured extensions
+                        var configuredExtensions = extList.Select(x => x.ToLower()).ToArray(); // ensure matching is case-insensitive
+
+                        bool selectedExtensionIsConfigured = selectedItemPaths.Select(Path.GetExtension)                    // .ext
+                                                                              .Select(x => x.TrimStart('.').ToLower())      // ext
+                                                                              .All(x => configuredExtensions.Contains(x));  // present in the configured extensions
 
                         if (selectedExtensionIsConfigured)
                         {
