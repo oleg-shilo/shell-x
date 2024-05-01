@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>shell-x</id>
-        <version>1.5.5.0</version>
+        <version>1.5.6.0</version>
         <title>Shell-X</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -20,7 +20,7 @@
 
         <summary>Shell-X</summary>
         <releaseNotes>
-Release v1.5.5.0
+Release v1.5.6.0
 * #26: Is it possible to implement context menu for the same type of files?
   - Added support for single item multipart extension list as config folder name (e.g. `[png]` will be treated the same way as `png`)
   - Added 'Naming convention' section in the CLI help content.
