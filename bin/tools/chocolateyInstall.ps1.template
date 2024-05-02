@@ -9,8 +9,7 @@ $checksum = ???
 $checksumType = "sha256"
 
 # Download and unpack a zip file
-#Install-ChocolateyZipPackage "$packageName" "$url" "$toolsDir" ["$url64" -checksum $checksum -checksumType $checksumType -checksum64 $checksum64 -checksumType64 $checksumType64]
-Install-ChocolateyZipPackage "$packageName" "$url" "$installDir" -checksum $checksum -checksumType $checksumType
+Install-ChocolateyZipPackage "$packageName" -Url64 $url -UnzipLocation "$installDir" -checksum64 $checksum -ChecksumType64 $checksumType
 
 # Need to execute exe twice with special arguments in order configure the host system appropriately.
 # Register server and generate initial config
