@@ -178,8 +178,13 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
     protected override bool CanShowMenu()
     {
+        // Debug.Assert(true);
+        // MessageBox.Show("CanShowMenu", Process.GetCurrentProcess().Id.ToString());
         if ((Environment.TickCount - lastPopupTime) < 1000)
+        {
+            Debug.WriteLine("Ignoring duplicate query");
             return false; // the query is executed twice if the clicked item is a folder on the folder tree. so exit to avoid duplication
+        }
 
         lastPopupTime = Environment.TickCount;
 #if DEBUG
@@ -190,6 +195,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
         Debug.WriteLine("Configured Multi File Extensions: " + String.Join(", ", new DynamicContextMenuExtension().ConfiguredFileExtensions.ParseMultipleExt().Select(x => "group(" + String.Join(", ", x) + ")")));
         Debug.WriteLine("--------------------");
 #endif
+        bool result;
         if (this.SelectedItemPaths.Count() == 1)
         {
             // Debug.Assert(false);
@@ -199,7 +205,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
             var ext = Path.GetExtension(path).Replace(".", "");
 
-            return
+            result =
                 Directory.Exists(path) || // always allow for folders as it is the only way to invoke shell-x config (single menu item)
                 ConfiguredFileExtensions.Any(x => x.Matching(ext)) ||
                 ConfiguredFileExtensions.Any(x => Path.GetFileName(path).MatchingAsExpression(x)) ||
@@ -211,26 +217,30 @@ public class DynamicContextMenuExtension : SharpContextMenu
         else
         {
             var extensions = ConfiguredFileExtensions.SelectMany(x =>
-            {
-                if (x.StartsWith("[") && x.EndsWith("]") && x.Contains(","))
-                    return x.Substring(1, x.Length - 2).Split(',');
-                else
-                    return new[] { x };
-            });
+                                                                 {
+                                                                     if (x.StartsWith("[") && x.EndsWith("]") && x.Contains(","))
+                                                                         return x.Substring(1, x.Length - 2).Split(',');
+                                                                     else
+                                                                         return new[] { x };
+                                                                 });
 
             foreach (string item in extensions)
             {
                 var ext = "." + item;
                 if (this.SelectedItemPaths.All(x => x.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
-                    return true;
+                {
+                    result = true;
+                    break;
+                }
             }
 
             if (this.SelectedItemPaths.Any())
-                return ConfiguredFileExtensions.Any(x => x.Matching(Globals.AnyPath));
+                result = ConfiguredFileExtensions.Any(x => x.Matching(Globals.AnyPath));
             else
-                return ConfiguredFileExtensions.Any(x => x.Matching(Globals.AnyFolder));
+                result = ConfiguredFileExtensions.Any(x => x.Matching(Globals.AnyFolder));
         }
-        return false;
+        Debug.WriteLine("CanShowMenu: " + result);
+        return result;
     }
 
     protected override ContextMenuStrip CreateMenu()
@@ -239,6 +249,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
         // - have an extension
         // - all extensions are the same
         // - extension is configured for having context menu
+
+        // Debug.Assert(false);
 
         var selectedItemPaths = new List<string>(this.SelectedItemPaths);
 
@@ -453,6 +465,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
     {
         lock (typeof(App))
         {
+            // Debug.Assert(false);
             bool showConsole = item.Contains(".c.");
             bool handleMultiselect = item.Contains(".ms.");
 
@@ -478,7 +491,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     if (item.EndsWithAny(".ps1"))
                     {
                         p.StartInfo.FileName = "powershell.exe";
-                        p.StartInfo.Arguments = $"\"{CloneScript(item)}\" {invokeArguments}";
+                        p.StartInfo.Arguments = $"-File \"{CloneScript(item)}\" {invokeArguments}";
                     }
 
                     if (showConsole)
@@ -487,9 +500,19 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         // though it unconditionally waits. Thus an orthodox execution as
                         // above is adequate particularly because it lets user to pose (with 'pause')
                         // in the batch file or path through to the exit.
-
-                        // p.StartInfo.FileName = "cmd.exe";
-                        // p.StartInfo.Arguments = $"/K \"\"{item}\" {invokeArguments}";
+                        if (Environment.GetEnvironmentVariable("SHELLX.KEEPCONSOLE") != null)
+                        {
+                            if (item.EndsWithAny(".ps1"))
+                            {
+                                p.StartInfo.FileName = "cmd.exe";
+                                p.StartInfo.Arguments = $"/K powershell.exe -File \"\"{CloneScript(item)}\"\" {invokeArguments}";
+                            }
+                            else
+                            {
+                                p.StartInfo.FileName = "cmd.exe";
+                                p.StartInfo.Arguments = $"/K \"\"{item}\"\" {invokeArguments}";
+                            }
+                        }
                     }
                     else
                     {
@@ -497,6 +520,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         p.StartInfo.RedirectStandardOutput = true;
                         p.StartInfo.CreateNoWindow = true;
                     }
+                    Debug.WriteLine($"Run: {p.StartInfo.FileName} {p.StartInfo.Arguments}");
                     p.Start();
                 }
                 catch (Exception ex)
