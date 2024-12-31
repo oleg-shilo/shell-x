@@ -1,5 +1,5 @@
 $packageName = 'shell-x'
-$url = 'https://github.com/oleg-shilo/shell-x/releases/download/v1.5.6.0/shell-x.v1.5.6.0.7z'
+$url = 'https://github.com/oleg-shilo/shell-x/releases/download/v1.5.7.0/shell-x.v1.5.7.0.7z'
 
 
 $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"

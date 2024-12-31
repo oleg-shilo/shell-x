@@ -13,7 +13,7 @@ void main()
     ServicePointManager.Expect100Continue = true;
     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-    var url = "https://github.com/oleg-shilo/shell-x/releases/download/v1.5.6.0/shell-x.v1.5.6.0.7z";
+    var url = "https://github.com/oleg-shilo/shell-x/releases/download/v1.5.7.0/shell-x.v1.5.7.0.7z";
 
     var installScript = @"tools\chocolateyInstall.ps1";
 
