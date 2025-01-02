@@ -29,7 +29,7 @@ class App
         }
         else if (args.ContainsAny("-init"))
         {
-            var dir = ConfigDir.PathJoin("txt", "01.=== Shell-X for •.txt file ===").EnsureDirectory();
+            var dir = ConfigDir.PathJoin("txt", "01.=== Shell-X for .txt file ===").EnsureDirectory();
 
             File.WriteAllText(dir.PathJoin("..", "00.separator"), "");
             File.WriteAllText(dir.PathJoin("..", "02.separator"), "");
@@ -481,6 +481,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 try
                 {
                     var p = new Process();
+                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(item);
                     p.StartInfo.FileName = item;
 
                     if (arg.StartsWith("\"") && arg.EndsWith("\""))
@@ -500,25 +501,26 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         // though it unconditionally waits. Thus an orthodox execution as
                         // above is adequate particularly because it lets user to pose (with 'pause')
                         // in the batch file or path through to the exit.
-                        if (Environment.GetEnvironmentVariable("SHELLX.KEEPCONSOLE") != null)
-                        {
-                            if (item.EndsWithAny(".ps1"))
-                            {
-                                p.StartInfo.FileName = "cmd.exe";
-                                p.StartInfo.Arguments = $"/K powershell.exe -File \"\"{CloneScript(item)}\"\" {invokeArguments}";
-                            }
-                            else
-                            {
-                                p.StartInfo.FileName = "cmd.exe";
-                                p.StartInfo.Arguments = $"/K \"\"{item}\"\" {invokeArguments}";
-                            }
-                        }
+                        // if (Environment.GetEnvironmentVariable("SHELLX.KEEPCONSOLE") != null)
+                        // {
+                        //     if (item.EndsWithAny(".ps1"))
+                        //     {
+                        //         p.StartInfo.FileName = "cmd.exe";
+                        //         p.StartInfo.Arguments = $"/K powershell.exe -File \"\"{CloneScript(item)}\"\" {invokeArguments}";
+                        //     }
+                        //     else
+                        //     {
+                        //         p.StartInfo.FileName = "cmd.exe";
+                        //         p.StartInfo.Arguments = $"/K \"\"{CloneScript(item)}\"\" {invokeArguments}";
+                        //     }
+                        // }
                     }
                     else
                     {
                         p.StartInfo.UseShellExecute = false;
                         p.StartInfo.RedirectStandardOutput = true;
                         p.StartInfo.CreateNoWindow = true;
+                        p.StartInfo.EnvironmentVariables["SHELLX.SCRIPTDIR"] = Path.GetDirectoryName(item);
                     }
                     Debug.WriteLine($"Run: {p.StartInfo.FileName} {p.StartInfo.Arguments}");
                     p.Start();
