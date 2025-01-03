@@ -468,13 +468,15 @@ public class DynamicContextMenuExtension : SharpContextMenu
             // Debug.Assert(false);
             bool showConsole = item.Contains(".c.");
             bool handleMultiselect = item.Contains(".ms.");
+            bool isPS = item.EndsWithAny(".ps1");
 
             var arguments = new List<string>();
+            arguments.AddRange(invokeArguments.SplitCommandLine());
 
-            if (handleMultiselect)
-                arguments.AddRange(invokeArguments.SplitCommandLine());
-            else
-                arguments.Add(invokeArguments);
+            arguments = arguments.Select(x => $"\"{x}\"").ToList();
+
+            if (!handleMultiselect)
+                arguments = new[] { string.Join(" ", arguments.ToArray()) }.ToList();
 
             foreach (var arg in arguments)
             {
@@ -483,36 +485,29 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     var p = new Process();
                     p.StartInfo.WorkingDirectory = Path.GetDirectoryName(item);
                     p.StartInfo.FileName = item;
+                    p.StartInfo.Arguments = arg;
 
-                    if (arg.StartsWith("\"") && arg.EndsWith("\""))
-                        p.StartInfo.Arguments = arg;
-                    else
-                        p.StartInfo.Arguments = $"\"{arg}\"";
-
-                    if (item.EndsWithAny(".ps1"))
+                    if (isPS)
                     {
                         p.StartInfo.FileName = "powershell.exe";
-                        p.StartInfo.Arguments = $"-File \"{CloneScript(item)}\" {invokeArguments}";
+                        p.StartInfo.Arguments = $"-File \"{item}\" {arg}";
                     }
 
                     if (showConsole)
                     {
-                        // code below works very well and produces less noise
-                        // though it unconditionally waits. Thus an orthodox execution as
-                        // above is adequate particularly because it lets user to pose (with 'pause')
+                        // code below works very well though it unconditionally waits. Thus an orthodox execution as
+                        // above is adequate particularly because it lets user to pause (with `pause` or with `$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`)
                         // in the batch file or path through to the exit.
-                        // if (Environment.GetEnvironmentVariable("SHELLX.KEEPCONSOLE") != null)
+                        //
+                        // if (item.EndsWithAny(".ps1"))
                         // {
-                        //     if (item.EndsWithAny(".ps1"))
-                        //     {
-                        //         p.StartInfo.FileName = "cmd.exe";
-                        //         p.StartInfo.Arguments = $"/K powershell.exe -File \"\"{CloneScript(item)}\"\" {invokeArguments}";
-                        //     }
-                        //     else
-                        //     {
-                        //         p.StartInfo.FileName = "cmd.exe";
-                        //         p.StartInfo.Arguments = $"/K \"\"{CloneScript(item)}\"\" {invokeArguments}";
-                        //     }
+                        //     p.StartInfo.FileName = "cmd.exe";
+                        //     p.StartInfo.Arguments = $"/K powershell.exe -File \"\"{item}\"\" {arg}";
+                        // }
+                        // else
+                        // {
+                        //     p.StartInfo.FileName = "cmd.exe";
+                        //     p.StartInfo.Arguments = $"/K \"\"{item}\"\" {arg}";
                         // }
                     }
                     else
