@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>shell-x</id>
-        <version>1.5.7.0</version>
+        <version>1.5.9.0</version>
         <title>Shell-X</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -20,11 +20,11 @@
 
         <summary>Shell-X</summary>
         <releaseNotes>
-Release v1.5.7.0
--    Added option to keep the console open for console commands with non-empty envar SHELLX.KEEPCONSOLE
--    Update PowerShell command support. It was needed because PS CLI changes
--    Update of SharpShell and ServerRegistrationManager packages.
-
+Release v1.5.9.0
+- Added unconditional quoting the args when passed to the scripts (triggered by #28)
+- Added Debug output with the script command being executed
+- Removed troublesome UNICODE char from the sample root folder. It upsets CMD terminal when testing.
+- Added setting working directory to the parent folder of the script being executed.
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>C# Windows Explorer context menu shell</tags>
