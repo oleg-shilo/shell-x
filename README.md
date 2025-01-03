@@ -159,5 +159,6 @@ The naming convention for configuration folders:
 ## Limitations
 
 * When the user right-clicks a file and the plugin is loaded for the very first time there is a noticeable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one-off limitation and any subsequent right-clicks bring the context menu instantly.
+* Be aware of the problems caused by the excessive amount of selected files. Windows limits amount of files that can be selected for shell extension or batch op[erations: https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation
 
 
