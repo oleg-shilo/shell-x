@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using ShellX;
 
 static class DSLExtensions
@@ -103,6 +104,41 @@ static class DSLExtensions
                                                                  .Replace(".ps1", "");
 
     public static string ToDirMenuText(this string path) => path.GetFileName().Split(new[] { '.' }, 2).Last();
+
+    public static int FromLogicalToPhysical(this int logicalHeight, float dpiY)
+    {
+        float scalingFactor = dpiY / 96f;
+        float physicalHeight = logicalHeight * scalingFactor;
+        return (int)physicalHeight;
+    }
+
+    public static float GetCurrentDpi(this ToolStripItem item)
+    {
+        float dpiY = 96f; // Default DPI
+
+        if (item.Owner != null)
+        {
+            using (Graphics g = item.Owner.CreateGraphics())
+            {
+                dpiY = g.DpiY;
+            }
+        }
+        else if (item.OwnerItem != null && item.OwnerItem.Owner != null)
+        {
+            using (Graphics g = item.OwnerItem.Owner.CreateGraphics())
+            {
+                dpiY = g.DpiY;
+            }
+        }
+        else
+        {
+            using (Graphics g = new Control().CreateGraphics())
+            {
+                dpiY = g.DpiY;
+            }
+        }
+        return dpiY;
+    }
 
     public static int ToStandardIconSize(this int customSize)
     {

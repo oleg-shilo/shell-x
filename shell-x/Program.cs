@@ -376,7 +376,10 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
                     try
                     {
-                        var size = parentMenu.ContentRectangle.Height.ToStandardIconSize();
+                        var dpi = parentMenu.GetCurrentDpi();
+                        var size = parentMenu.ContentRectangle.Height
+                            .FromLogicalToPhysical(dpi)
+                            .ToStandardIconSize();
                         parentMenu.Image = parentMenu.Image?.Resize(size, size);
                     }
                     catch { }
@@ -404,7 +407,11 @@ public class DynamicContextMenuExtension : SharpContextMenu
 
                         try
                         {
-                            var size = menu.ContentRectangle.Height.ToStandardIconSize();
+                            var dpi = menu.GetCurrentDpi();
+
+                            var size = menu.ContentRectangle.Height
+                                .FromLogicalToPhysical(dpi)
+                                .ToStandardIconSize();
 
                             menu.Image = menu.Image?.Resize(size, size);
                         }
