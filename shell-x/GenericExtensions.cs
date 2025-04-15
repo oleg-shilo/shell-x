@@ -122,14 +122,30 @@ static class DSLExtensions
     [DllImport("user32.dll")]
     static extern uint GetDpiForWindow(IntPtr hWnd);
 
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Ansi)]
+    private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
     public static float GetCurrentDpi(this ToolStripItem item)
     {
-        // cannot use CreateGraphics since there is no owner window, so uing interop to get the system DPI
-        return GetDpiForSystem();  // Safe system-wide DPI
+        // cannot use CreateGraphics since there is no owner window, so using interop to get the system DPI
 
-        // Per-monitor DPI
-        IntPtr hwnd = GetForegroundWindow();
-        return GetDpiForWindow(hwnd);
+        IntPtr user32 = GetModuleHandle("user32.dll");
+        IntPtr proc = GetProcAddress(user32, "GetDpiForWindow");
+
+        if (proc == IntPtr.Zero)
+        {
+            // Fallback to system DPI
+            return GetDpiForSystem();
+        }
+        else
+        {
+            // Per-monitor DPI
+            IntPtr hwnd = GetForegroundWindow();
+            return GetDpiForWindow(hwnd);
+        }
 
         // float dpiY = 96f; // Default DPI
 
