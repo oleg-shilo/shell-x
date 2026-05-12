@@ -492,8 +492,8 @@ public class DynamicContextMenuExtension : SharpContextMenu
                 return Regex.IsMatch(content, @"%ARGS_FILE%|!ARGS_FILE!", RegexOptions.IgnoreCase);
             }
 
-            // PowerShell: $env:ARGS_FILE or ${env:ARGS_FILE}
-            return Regex.IsMatch(content, @"\$env:ARGS_FILE|\$\{env:ARGS_FILE\}", RegexOptions.IgnoreCase);
+            // PowerShell: $env:ARGS_FILE or ${env:ARGS_FILE} or %ARGS_FILE% (in case of using env var in the script without $env: prefix)
+            return Regex.IsMatch(content, @"\$env:ARGS_FILE|\$\{env:ARGS_FILE\|%ARGS_FILE%", RegexOptions.IgnoreCase);
         }
         catch
         {
