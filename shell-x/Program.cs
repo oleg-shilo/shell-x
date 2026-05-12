@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -468,6 +469,38 @@ public class DynamicContextMenuExtension : SharpContextMenu
         return clone;
     }
 
+    static bool ReferencesArgsFileEnvVar(string filePath)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+                return false;
+
+            var ext = Path.GetExtension(filePath);
+            bool isCmd = ext.Equals(".cmd", StringComparison.OrdinalIgnoreCase) ||
+                         ext.Equals(".bat", StringComparison.OrdinalIgnoreCase);
+            bool isPs1 = ext.Equals(".ps1", StringComparison.OrdinalIgnoreCase);
+
+            if (!isCmd && !isPs1)
+                return false;
+
+            var content = File.ReadAllText(filePath);
+
+            if (isCmd)
+            {
+                // %ARGS_FILE% or !ARGS_FILE!
+                return Regex.IsMatch(content, @"%ARGS_FILE%|!ARGS_FILE!", RegexOptions.IgnoreCase);
+            }
+
+            // PowerShell: $env:ARGS_FILE or ${env:ARGS_FILE}
+            return Regex.IsMatch(content, @"\$env:ARGS_FILE|\$\{env:ARGS_FILE\}", RegexOptions.IgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static void Execute(string item, string invokeArguments)
     {
         lock (typeof(App))
@@ -481,7 +514,6 @@ public class DynamicContextMenuExtension : SharpContextMenu
             arguments.AddRange(invokeArguments.SplitCommandLine());
 
             arguments = arguments.Select(x => $"\"{x}\"").ToList();
-
             if (!handleMultiselect)
                 arguments = new[] { string.Join(" ", arguments.ToArray()) }.ToList();
 
@@ -493,6 +525,7 @@ public class DynamicContextMenuExtension : SharpContextMenu
                     p.StartInfo.WorkingDirectory = Path.GetDirectoryName(item);
                     p.StartInfo.FileName = item;
                     p.StartInfo.Arguments = arg;
+                    p.StartInfo.UseShellExecute = false; // needed to allow setting envars fro the child process
 
                     if (isPS)
                     {
@@ -500,10 +533,23 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         p.StartInfo.Arguments = $"-File \"{item}\" {arg}";
                     }
 
+                    // save arguments to temp file
+                    var tempDir = Path.Combine(Path.GetTempPath(), "shell-x");
+                    Directory.CreateDirectory(tempDir);
+
+                    var tempFile = Path.Combine(tempDir, Path.GetRandomFileName() + ".args.txt");
+                    File.WriteAllText(tempFile, p.StartInfo.Arguments ?? string.Empty);
+
+                    if (ReferencesArgsFileEnvVar(p.StartInfo.FileName))
+                    {
+                        // arguments are passed through environment variable, so clear them to avoid duplication
+                        p.StartInfo.Arguments = "";
+                    }
+
                     if (showConsole)
                     {
-                        // code below works very well though it unconditionally waits. Thus an orthodox execution as
-                        // above is adequate particularly because it lets user to pause (with `pause` or with `$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`)
+                        // code below works very well though it unconditionally waits. Thus an orthodox execution
+                        // is adequate particularly because it lets user to pause (with `pause` or with `$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`)
                         // in the batch file or path through to the exit.
                         //
                         // if (item.EndsWithAny(".ps1"))
@@ -522,15 +568,32 @@ public class DynamicContextMenuExtension : SharpContextMenu
                         p.StartInfo.UseShellExecute = false;
                         p.StartInfo.RedirectStandardOutput = true;
                         p.StartInfo.CreateNoWindow = true;
-                        p.StartInfo.EnvironmentVariables["SHELLX.SCRIPTDIR"] = Path.GetDirectoryName(item);
                     }
+
+                    if (!p.StartInfo.UseShellExecute)
+                    {
+                        p.StartInfo.EnvironmentVariables["SHELLX.SCRIPTDIR"] = Path.GetDirectoryName(item);
+                        p.StartInfo.EnvironmentVariables["ARGS_FILE"] = tempFile;
+                    }
+
+                    p.EnableRaisingEvents = true;
+                    p.Exited += (s, e) =>
+                    {
+                        Task.Run(async () =>
+                        {
+                            await Task.Delay(5000);
+                            try { File.Delete(tempFile); } catch { }
+                        });
+                    };
+
                     Debug.WriteLine($"Run: {p.StartInfo.FileName} {p.StartInfo.Arguments}");
                     p.Start();
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Error: {ex}", App.Name);
-                };
+                }
+                ;
 
                 Task.Run(Cleanup);
             }

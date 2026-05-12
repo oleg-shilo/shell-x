@@ -59,7 +59,7 @@
             // 
             this.pathTextBox.Location = new System.Drawing.Point(13, 29);
             this.pathTextBox.Name = "pathTextBox";
-            this.pathTextBox.Size = new System.Drawing.Size(256, 20);
+            this.pathTextBox.Size = new System.Drawing.Size(235, 20);
             this.pathTextBox.TabIndex = 2;
             this.pathTextBox.TextChanged += new System.EventHandler(this.pathTextBox_TextChanged);
             // 
@@ -94,14 +94,19 @@
             // 
             // selectionCount
             // 
-            this.selectionCount.Location = new System.Drawing.Point(293, 29);
+            this.selectionCount.Location = new System.Drawing.Point(272, 29);
+            this.selectionCount.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
             this.selectionCount.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.selectionCount.Name = "selectionCount";
-            this.selectionCount.Size = new System.Drawing.Size(42, 20);
+            this.selectionCount.Size = new System.Drawing.Size(63, 20);
             this.selectionCount.TabIndex = 6;
             this.selectionCount.Value = new decimal(new int[] {
             1,
@@ -112,7 +117,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(275, 31);
+            this.label2.Location = new System.Drawing.Point(254, 32);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(12, 13);
             this.label2.TabIndex = 7;
