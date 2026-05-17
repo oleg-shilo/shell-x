@@ -159,9 +159,9 @@ The naming convention for configuration folders:
 ## Limitations
 
 * When the user right-clicks a file and the plugin is loaded for the very first time there is a noticeable delay (~3-5 seconds) before the menu pops up. This is a Windows Explorer one-off limitation and any subsequent right-clicks bring the context menu instantly.
-* Be aware of the problems caused by the excessive amount of selected files. Windows limits amount of files that can be selected for shell extension or batch operations: https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation<br>
+* Be aware of the problems caused by the excessive number of selected files. Windows limits the number of files that can be selected for shell extension or batch operations: https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation<br>
 
-  If you configure a custom application to receive the explorer selection input that can exceed the size limt for starting the process with CLI command line (e.g. see #34) then you can specify in the cmd file the environment variable `ARGS_FILE` that will be resolved at runtime into the path to the temporary file containing list of all arguments that you can read from the application invoked by the shell extension.
+  If you configure a custom application to receive the explorer selection input that can exceed the size limt for starting the process with CLI command line (e.g. see #34) then you can specify in the cmd file (cmd/bat/ps1) the environment variable `ARGS_FILE` that will be set at runtime to the path to the temporary file containing list of all arguments that you can read from the application invoked by the shell extension. Passing normal arguments to your command script will be suppressed to avoid the excessive-arguments exception.
   IE:
   - **cmd/bat**:
   *00.TestLongSelection.cmd (00.TestLongSelection.bat)*
